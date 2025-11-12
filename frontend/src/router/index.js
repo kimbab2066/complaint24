@@ -71,22 +71,6 @@ const routes = [
     name: 'documentation',
     component: () => import('@/views/pages/Documentation.vue'),
   },
-  {
-    path: '/login',
-    name: 'login',
-    component: () => import('@/views/pages/Login.vue'),
-    meta: { requiresAuth: false }, // 인증X
-  },
-  {
-    path: '/home',
-    name: 'userhome',
-    component: () => import('@/components/AppMain.vue'),
-  },
-  {
-    path: '/syshome',
-    name: 'syshome',
-    component: () => import('@/components/SysMain.vue'),
-  },
 
   {
     path: '/landing',
@@ -115,7 +99,7 @@ const routes = [
   },
 
   // 2. Spread 연산자(...)를 사용해 두 배열을 하나의 'routes' 배열로 합칩니다.
-  ...systemRouter.routes,
+  ...systemRouter,
   ...mainRouter,
   // 나중에 경로 파일을 더 만들어도 여기에 계속 추가하면 됩니다.
   // ...adminRoutes,

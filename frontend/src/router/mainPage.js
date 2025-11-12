@@ -24,6 +24,8 @@ export default [
     path: '/signup',
     name: 'signup',
     component: () => import('@/components/SignUp.vue'),
+  },
+  {
     path: '/counseling-apply',
     name: 'counseling-apply',
     component: () => import('../views/pages/user/Counseling.vue'),

@@ -1,7 +1,7 @@
 export default [
   {
     path: '/login',
-    name: 'login',
+    name: 'Login',
     component: () => import('../views/pages/Login.vue'),
     meta: { requiresAuth: false }, // 인증X
   },
@@ -9,11 +9,6 @@ export default [
     path: '/home',
     name: 'userhome',
     component: () => import('@/components/AppMain.vue'),
-  },
-  {
-    path: '/syshome',
-    name: 'syshome',
-    component: () => import('@/components/SysMain.vue'),
   },
   {
     path: '/homepage',

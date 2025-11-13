@@ -33,6 +33,10 @@ const authRouter = require("./routers/authRouter.js");
 app.use("/auth", authRouter);
 console.log("[app.js] 3. authRouter loaded.");
 
-//유저 모듈
+// 유저 모듈
 const userRouter = require("./routers/userRouter");
 app.use("/api/user", userRouter);
+
+// 회원가입 모듈
+const signupRouter = require("./routers/signupRouter.js");
+app.use(signupRouter);

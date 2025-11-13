@@ -1,6 +1,8 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router/index.js';
+// Daum API 플러그인
+import VueDaumPostcode from 'vue-daum-postcode';
 
 import Aura from '@primeuix/themes/aura';
 import PrimeVue from 'primevue/config';
@@ -14,6 +16,9 @@ import '@/assets/styles.scss';
 
 const app = createApp(App);
 const pinia = createPinia();
+
+// Daum API 플러그인 등록
+app.use(VueDaumPostcode);
 
 pinia.use(piniaPluginPersistedState);
 

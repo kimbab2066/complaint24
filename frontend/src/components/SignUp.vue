@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router'; // 라우팅을 위해 추가
+import axios from 'axios';
 
 // 상태 변수 정의 (추가된 필드 포함)
 const selectedRole = ref('USER'); // 권한 별 로그인
@@ -21,37 +22,59 @@ const birthDay = ref('');
 
 const agreeTerms = ref(false); // 약관 동의
 
+const apiLoadError = ref(''); // Daum API 연동 에러 상태 변수
+
+const passwordError = ref('');
+const termsError = ref('');
+
 const router = useRouter();
 
+// 주소 찾기 표시/숨김 상태
+const isPostcodeOpen = ref(false);
+
 // 회원가입 제출 처리 함수
-const handleSignUp = () => {
+const handleSignUp = async () => {
+  // 에러 메시지 초기화
+  passwordError.value = '';
+  termsError.value = '';
+  // 유효성 검사
   if (password.value !== confirmPassword.value) {
-    alert('비밀번호와 비밀번호 확인이 일치하지 않습니다.');
+    passwordError.value = '비밀번호와 비밀번호 확인이 일치하지 않습니다.';
     return;
   }
   if (!agreeTerms.value) {
-    alert('필수 약관에 동의해야 회원가입을 완료할 수 있습니다.');
+    termsError.value = '필수 약관에 동의해야 회원가입을 완료할 수 있습니다.';
     return;
   }
+  // 생년월일 통합(YYYY-MM-DD) .padStart(4, '0') mariaDB 날짜표기 통합
+  const birthDate = `${birthYear.value.padStart(4, '0')}-${birthMonth.value.padStart(2, '0')}-${birthDay.value.padStart(2, '0')}`;
 
-  // TODO: 실제 API 호출 및 회원가입 로직 구현
-  console.log('회원가입 정보:', {
-    role: selectedRole.value,
+  // 주소 통합
+  const fullAddress = `${zipcode.value},${addressMain.value}${addressDetail.value ? ', ' + addressDetail.value : ''}`;
+
+  // backend로 전송할 최종 데이터 객체
+  const signUpData = {
+    selectedRole: selectedRole.value,
     userId: userId.value,
+    password: password.value,
     name: name.value,
+    birthDate: birthDate,
     email: email.value,
     phone: phone.value,
-    birthday: `${birthYear.value}-${birthMonth.value}-${birthDay.value}`,
-    address: {
-      zipcode: zipcode.value,
-      addressMain: addressMain.value,
-      addressDetail: addressDetail.value,
-    },
-  });
+    fullAddress: fullAddress,
+    role: selectedRole.value,
+  };
+  // backend API로 POST 요청
+  try {
+    const nodeApiUrl = '/api/register';
 
-  alert(`[${selectedRole.value}] 역할로 회원가입을 시도합니다. (API 연동 필요)`);
-  // 성공 후 로그인 페이지로 리다이렉션 예시
-  // router.push({ name: 'Login' });
+    await axios.post(nodeApiUrl, signUpData);
+    alert('회원가입이 완료되었습니다');
+    goToLogin();
+  } catch (error) {
+    // 요청 실패
+    console.error('회원가입 실패');
+  }
 };
 
 // 로그인 페이지로 이동
@@ -59,8 +82,49 @@ const goToLogin = () => {
   router.push({ name: 'Login' });
 };
 
-// 우편번호 검색 함수
-const searchZipcode = () => {};
+// 우편번호 검색 함수 (모달 열기)
+const searchZipcode = () => {
+  isPostcodeOpen.value = true;
+  apiLoadError.value = ''; // 에러 메시지 초기화
+};
+// 우편번호 검색 완료 시 처리 함수
+const addressSearched = (data) => {
+  // 모달 닫기
+  isPostcodeOpen.value = false;
+  // 기본 주소 (vue-daum-postcode가 제공)
+  let fullAddress = '';
+  let extraAddr = '';
+
+  if (data.userSelectedType === 'R') {
+    // 도로명 주소
+    fullAddress = data.roadAddress;
+  } else {
+    // 지번 주소
+    fullAddress = data.jibunAddress;
+  }
+  // 참고항목 (법정동명, 건물명 등)
+  if (data.bname !== '' && /[동|로|가]$/g.test(data.bname)) {
+    extraAddr += data.bname;
+  }
+  if (data.buildingName !== '' && data.apartment === 'Y') {
+    extraAddr += extraAddr !== '' ? ', ' + data.buildingName : data.buildingName;
+  }
+  if (extraAddr !== '') {
+    fullAddress += `(${extraAddr})`;
+  }
+  // 상태 변수 업데이트
+  zipcode.value = data.zonecode;
+  addressMain.value = fullAddress;
+  addressDetail.value = ''; // 상세 주소 초기화
+  // 상세 주소는 이용자가 직접 입력하도록 포커스스
+  setTimeout(() => {
+    document.getElementById('address-detail')?.focus();
+  }, 100);
+};
+// 우편번호 찾기 화면 닫기
+const closePostcode = () => {
+  isPostcodeOpen.value = false;
+};
 </script>
 
 <template>
@@ -69,20 +133,20 @@ const searchZipcode = () => {};
       <!-- 역할 탭: 디자인 동일하게 유지 -->
       <div class="role-tabs">
         <button
-          :class="['tab-button', { active: selectedRole === 'USER' }]"
-          @click="selectedRole = 'USER'"
+          :class="['tab-button', { active: selectedRole === '1a' }]"
+          @click="selectedRole = '1a'"
         >
           일반 이용자
         </button>
         <button
-          :class="['tab-button', { active: selectedRole === 'STAFF' }]"
-          @click="selectedRole = 'STAFF'"
+          :class="['tab-button', { active: selectedRole === '2a' }]"
+          @click="selectedRole = '2a'"
         >
           기관 담당자
         </button>
         <button
-          :class="['tab-button', { active: selectedRole === 'ADMIN_SYS' }]"
-          @click="selectedRole = 'ADMIN_SYS'"
+          :class="['tab-button', { active: selectedRole === '3a' }]"
+          @click="selectedRole = '3a'"
         >
           기관 관리자
         </button>
@@ -122,6 +186,7 @@ const searchZipcode = () => {};
             placeholder="비밀번호를 확인하세요"
             required
           />
+          <p v-if="passwordError" class="inline-error-message mx-1 test-sm">{{ passwordError }}</p>
         </div>
 
         <!-- 4. 이름 -->
@@ -167,6 +232,9 @@ const searchZipcode = () => {};
             </button>
           </div>
         </div>
+        <!-- Daum API연동 에러 발생시 -->
+        <p v-if="apiLoadError" class="error-message">{{ apiLoadError }}</p>
+
         <div class="form-group">
           <input
             id="address-main"
@@ -185,25 +253,42 @@ const searchZipcode = () => {};
             placeholder="상세 주소 (동/호수 등)"
           />
         </div>
+
+        <div v-if="isPostcodeOpen" class="postcode-modal-overlay" @click.self="closePostcode">
+          <div class="postcode-modal-content">
+            <VueDaumPostcode
+              @complete="addressSearched"
+              :width="600"
+              :height="600"
+              :animation="true"
+              :theme="{
+                bgColor: '#fff',
+                searchColor: '#3498db',
+                // ... 기타 테마 설정 가능
+              }"
+            />
+            <button class="close-btn" @click="closePostcode">닫기</button>
+          </div>
+        </div>
+
         <!-- 주소 필드는 레이블을 하나로 묶고, 입력 필드를 분리하여 디자인 통일성을 유지했습니다. -->
 
-        <!-- 약관 동의 (로그인 옵션 대체) -->
+        <!-- 약관 동의  -->
         <div class="login-options signup-options">
           <div class="remember-me">
-            <input id="agree-terms" type="checkbox" v-model="agreeTerms" required />
+            <input id="agree-terms" type="checkbox" v-model="agreeTerms" />
             <label for="agree-terms">[필수] 이용약관 및 개인정보 처리방침 동의</label>
           </div>
+          <br />
+          <p v-if="termsError" class="inline-error-message mt-1 text-sm">{{ termsError }}</p>
           <!-- 회원가입 페이지에서는 '아이디/비번 찾기' 링크는 불필요하므로 제거 -->
         </div>
 
-        <!-- 액션 버튼: 회원가입용으로 변경 -->
         <div class="action-buttons">
           <button type="submit" class="btn-login">회원가입</button>
           <button type="button" class="btn-signup" @click="goToLogin">취소</button>
         </div>
       </form>
-
-      <!-- 회원가입 페이지에서는 소셜 로그인 섹션이 불필요하므로 제거 -->
     </div>
   </div>
 </template>
@@ -310,6 +395,11 @@ const searchZipcode = () => {};
   width: auto;
   padding: 0;
 }
+.inline-error-message {
+  color: #ef4444; /* Red 500 */
+  font-size: 0.875rem; /* text-sm */
+  margin-top: 5px;
+}
 
 /* 링크는 회원가입 페이지에서는 제거되었지만 클래스 구조 유지를 위해 CSS는 남겨둡니다. */
 .links {
@@ -376,5 +466,64 @@ const searchZipcode = () => {};
 
 .btn-zipcode-search:hover {
   background-color: #e0e0e0;
+}
+
+/* 에러 메시지 스타일 */
+.error-message {
+  color: #e53935; /* 밝은 빨간색 */
+  font-size: 0.9em;
+  margin-top: -10px; /* 주소 필드 그룹과 붙이기 위해 마진 조정 */
+  margin-bottom: 10px;
+  padding-left: 5px;
+  font-weight: bold;
+}
+
+/* ... (기존 스타일) ... */
+
+/* 예시로 필요한 스타일들을 추가 (login-container, form-group 등) */
+.login-container {
+  display: flex;
+  justify-content: center;
+  padding: 50px;
+}
+
+.login-box {
+  width: 100%;
+  max-width: 450px;
+  padding: 40px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+/* 주소 입력 그룹 스타일 */
+.address-input-group {
+  display: flex;
+  gap: 10px;
+}
+
+.address-input-group input {
+  flex-grow: 1;
+}
+
+.btn-zipcode-search {
+  padding: 10px 15px;
+  background-color: #555;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap; /* 버튼 텍스트 줄바꿈 방지 */
+}
+.close-btn {
+  color: blue;
+  padding: 10px;
+  border: 1px, solid;
+  border-radius: 8px;
+  margin-bottom: 10px;
 }
 </style>

@@ -36,3 +36,7 @@ console.log("[app.js] 3. authRouter loaded.");
 //유저 모듈
 const userRouter = require("./routers/userRouter");
 app.use("/api/user", userRouter);
+
+//유저 모듈
+const staffRouter = require("./routers/staffRouter");
+app.use("/staff", staffRouter);

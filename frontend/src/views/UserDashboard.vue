@@ -25,7 +25,7 @@ const selectedSurveyNo = ref(null);
 
 const setExpiringNotices = async () => {
   try {
-    const res = await axios.get('/api/api/user/user-notices');
+    const res = await axios.get('/api/user/user-notices');
     console.log('myResult.data', res.data);
     expiringNotices.value = res.data.result;
   } catch (err) {
@@ -34,7 +34,7 @@ const setExpiringNotices = async () => {
 };
 const setSurveyToUserWard = async () => {
   try {
-    const res = await axios.get('/api/api/user/userwiter-survey');
+    const res = await axios.get('/api/user/userwiter-survey');
     console.log('mySurveyResult.data', res.data);
     surveyToUserWard.value = res.data.result;
   } catch (err) {

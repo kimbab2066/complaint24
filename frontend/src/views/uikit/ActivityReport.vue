@@ -78,7 +78,6 @@ const viewDetails = (survey) => {
         <span class="text-sm font-medium text-gray-700">토글 필터:</span>
         <InputSwitch v-model="toggleState" />
       </div>
-      <Button label="조사지 작성" icon="pi pi-pencil" @click="writePost" />
     </div>
 
     <!-- 데이터 테이블 -->

@@ -32,6 +32,12 @@ const dropdownItems = ref([
   { name: '6번 사업', code: 'Option 6' },
 ]);
 
+const priority = ref([
+  { name: '긴급', code: 'Option 1' },
+  { name: '중점', code: 'Option 2' },
+  { name: '반려', code: 'Option 3' },
+]);
+
 // 금액 3자리 콤마
 const formatAmount = (form) => {
   const onlyNums = form.amount.replace(/[^0-9]/g, '');
@@ -63,6 +69,16 @@ const addForm = () => forms.value.push(createForm());
         <div class="card flex flex-col gap-4 w-full border p-4 rounded-md shadow-sm">
           <!-- 작성자 / 담당자 -->
           <div class="flex flex-col md:flex-row gap-2">
+            <div class="flex flex-wrap gap-2 w-full">
+              <label>우선순위</label>
+              <Select
+                v-model="form.priority"
+                :options="priority"
+                optionLabel="name"
+                placeholder="우선순위"
+                class="w-full"
+              />
+            </div>
             <div class="flex flex-wrap gap-2 w-full">
               <label>반려사유</label>
               <InputText v-model="form.writer" type="text" />

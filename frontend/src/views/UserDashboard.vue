@@ -83,7 +83,7 @@ const performSearch = (query) => {
       <div class="col-12 md:col-9">
         <p>자주 찾는 메뉴</p>
         <div class="Menu_Group">
-          <div v-for="(menu, idx) in quickMenus" :key="idx" class="Menu_Item">
+          <div v-for="menu in quickMenus" :key="menu.label" class="Menu_Item">
             <router-link :to="menu.path" class="Menu_Icon_Link">
               <div class="Icon_Container">
                 <i :class="menu.icon + ' menu-icon'" aria-hidden="true"></i>

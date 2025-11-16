@@ -8,7 +8,68 @@ import Card from 'primevue/card';
 
 // --- 상태 관리 ---
 const query = ref('');
-const searchResults = ref([]); // API 검색 결과를 담을 ref
+const searchResults = ref([
+    {
+        board_no: 1,
+        category: '사이트 메뉴명',
+        title: '사업 공고',
+        content: '진행중인 사업 목록을 확인하고 지원하세요.',
+        institution_name: '웹사이트',
+        writer: '운영자',
+        created_at: '2025-11-16',
+        updated_at: '2025-11-16'
+    },
+    {
+        board_no: 2,
+        category: '사이트 메뉴명',
+        title: '사업 신청',
+        content: '관심있는 사업에 직접 신청할 수 있습니다.',
+        institution_name: '웹사이트',
+        writer: '운영자',
+        created_at: '2025-11-16',
+        updated_at: '2025-11-16'
+    },
+    {
+        board_no: 3,
+        category: '사이트 메뉴명',
+        title: '피보호자 등록',
+        content: '서비스를 받을 피보호자를 등록하고 관리합니다.',
+        institution_name: '웹사이트',
+        writer: '운영자',
+        created_at: '2025-11-16',
+        updated_at: '2025-11-16'
+    },
+    {
+        board_no: 4,
+        category: '사이트 메뉴명',
+        title: '상담 예약',
+        content: '전문가와 상담을 예약할 수 있습니다.',
+        institution_name: '웹사이트',
+        writer: '운영자',
+        created_at: '2025-11-16',
+        updated_at: '2025-11-16'
+    },
+    {
+        board_no: 5,
+        category: '사이트 메뉴명',
+        title: 'Q&A',
+        content: '자주 묻는 질문과 답변을 확인하세요.',
+        institution_name: '웹사이트',
+        writer: '운영자',
+        created_at: '2025-11-16',
+        updated_at: '2025-11-16'
+    },
+    {
+        board_no: 6,
+        category: '자료실',
+        title: '자료실',
+        content: '관련 서식이나 자료를 다운로드할 수 있습니다.',
+        institution_name: '웹사이트',
+        writer: '운영자',
+        created_at: '2025-11-16',
+        updated_at: '2025-11-16'
+    }
+]); // API 검색 결과를 담을 ref
 const isLoading = ref(false);
 const error = ref(null);
 
@@ -47,13 +108,13 @@ const performApiSearch = async () => {
 };
 
 // --- 생명주기 훅 ---
-onMounted(() => {
-  const queryFromState = history.state.searchQuery;
-  if (queryFromState) {
-    query.value = queryFromState;
-  }
-  performApiSearch(); // 컴포넌트 마운트 시 초기 검색 실행
-});
+// onMounted(() => {
+//   const queryFromState = history.state.searchQuery;
+//   if (queryFromState) {
+//     query.value = queryFromState;
+//   }
+//   // performApiSearch(); // 컴포넌트 마운트 시 초기 검색 실행
+// });
 
 // --- 클라이언트 측 필터링 및 정렬 ---
 function resetFilters() {
@@ -96,11 +157,11 @@ function escapeHtml(str = '') {
 
 function submitSearch() {
   page.value = 1;
-  performApiSearch(); // Enter 키 입력 시 API 검색 실행
+  // performApiSearch(); // Enter 키 입력 시 API 검색 실행
 }
 
 function doRefresh() {
-  performApiSearch();
+  // performApiSearch();
 }
 function scrollToTop() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -177,28 +238,16 @@ function toggleFilterCollapsed() {
           <div v-if="displayResults.length === 0" class="no-results">검색 결과가 없습니다.</div>
           <div v-else class="grid">
             <Card v-for="item in displayResults" :key="item.board_no" class="result-card">
-              <template #subtitle>
-                <div class="card-subtitle">
-                  <span>{{ item.institution_name }}</span>
-                  <span v-if="item.writer"> | {{ item.writer }}</span>
-                </div>
-              </template>
-              <template #title>
-                <div class="card-title" v-html="highlightText(item.title, query)"></div>
-              </template>
-              <div class="card-body">
-                <div class="excerpt" v-html="highlightText(item.content, query)"></div>
-              </div>
-              <template #footer>
-                <div class="card-footer">
-                  <div class="meta">
-                    <span class="cat">{{ item.category }}</span>
-                    <span class="date" v-if="item.updated_at">{{ item.updated_at.substring(0, 10) }}</span>
-                  </div>
-                  <div class="actions">
-                    <!-- path가 없으므로 상세 페이지 이동은 비활성화 -->
-                    <Button icon="pi pi-external-link" label="상세보기" class="p-button-text" disabled />
-                  </div>
+              <template #content>
+                <div class="card-content">
+                    <div class="card-header">
+                        <Tag :value="item.category"></Tag>
+                    </div>
+                    <div class="card-title" v-html="highlightText(item.title, query)"></div>
+                    <div class="excerpt" v-html="highlightText(item.content, query)"></div>
+                    <div class="card-footer">
+                        <Button label="사이트 가기" class="p-button-outlined" />
+                    </div>
                 </div>
               </template>
             </Card>
@@ -237,15 +286,46 @@ function toggleFilterCollapsed() {
 .sort-row { display: flex; justify-content: flex-end; margin-bottom: 8px; }
 .sort-options a { margin-left: 8px; color: #666; text-decoration: none; cursor: pointer; }
 .sort-options a.active { font-weight: 700; color: #007ad9; }
-.results-grid .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.results-grid .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
 @media (max-width: 880px) { .results-grid .grid { grid-template-columns: 1fr; } }
-.result-card { padding: 0; }
-.result-card :deep(.p-card-subtitle) { padding: 12px 16px 0; } /* subtitle 패딩 추가 */
-.result-card :deep(.p-card-title) { padding: 8px 16px; font-size: 1.1rem; border: none; }
-.card-body { display: flex; gap: 12px; padding: 0 16px 12px; align-items: flex-start; }
-.excerpt { color: #444; font-size: 0.95rem; }
-.card-footer { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px 12px 12px; border-top: 1px solid #f2f2f2; }
-.card-footer .meta { color: #777; font-size: 0.85rem; }
+
+/* --- 카드 스타일 수정 --- */
+.result-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    transition: box-shadow 0.3s;
+}
+.result-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.result-card :deep(.p-card-body) {
+    padding: 0; /* 내부 패딩 제거 */
+}
+.card-content {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.card-header {
+    margin-bottom: 1rem;
+}
+.card-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+.excerpt {
+    color: #4b5563;
+    font-size: 0.95rem;
+    flex-grow: 1; /* 내용이 푸터를 밀어내도록 함 */
+    margin-bottom: 1.5rem;
+}
+.card-footer {
+    margin-top: auto; /* 푸터를 카드의 맨 아래로 보냄 */
+    text-align: right;
+}
+/* --- 기존 스타일 --- */
 .hl { background: #fffbcc; padding: 0 2px; border-radius: 2px; }
 .fab-group { position: fixed; right: 20px; bottom: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 1200; }
 .fab { width: 44px; height: 44px; border-radius: 50%; background: #111; color: #fff; border: none; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); }

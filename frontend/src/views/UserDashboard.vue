@@ -64,13 +64,11 @@ onBeforeMount(() => {
 
 // SearchBar가 @search 이벤트를 발생시키면 실행될 함수
 const performSearch = (query) => {
-  if (query && query.trim()) {
-    // 'uds' 페이지로 쿼리와 함께 이동
-    router.push({
-      name: 'uds',
-      state: { searchQuery: query },
-    });
-  }
+  // 'uds' 페이지로 쿼리와 함께 이동 (항상 이동)
+  router.push({
+    name: 'uds',
+    state: { searchQuery: query || '' }, // Pass empty string if query is null/undefined
+  });
 };
 </script>
 

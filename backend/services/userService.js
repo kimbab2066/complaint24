@@ -1,10 +1,14 @@
 const mapper = require("../database/mappers/mapper");
 
 const formatDate = (date) => {
-  // toISOString() 결과: "2025-11-12T07:25:05.000Z"
-  const isoString = date.toISOString();
+  // date 값이 null이거나 유효하지 않은 경우, 에러를 발생시키는 대신 null을 반환
+  if (!date || new Date(date).toString() === 'Invalid Date') {
+    return null;
+  }
 
-  // T 문자를 기준으로 문자열을 나누어 첫 번째 요소(날짜)만 반환
+  // 이제 date는 유효한 값이므로 안전하게 변환 실행
+  const dateObj = new Date(date);
+  const isoString = dateObj.toISOString();
   const formattedDate = isoString.split("T")[0];
 
   return formattedDate;
@@ -30,30 +34,42 @@ const getSurveyToUserWard = async (userName) => {
   });
   return res;
 };
+
 const getBoardList = async (searchParams) => {
   const { term, type } = searchParams;
+  let res = [];
 
-  // 1. 검색어가 없는 경우, 전체 목록 조회
+  // 1. 검색어가 없는 경우
   if (!term) {
-    const res = await mapper.query("findBoardList", []);
-    return res;
+    console.log("빈 검색어로 갑니다.");
+    res = await mapper.query("findBoardList", []);
   }
-
-  // 2. 검색어가 있는 경우
-  if (type === "hashtag") {
+  // 💡 [수정] 'else if'로 변경하여 위 if문과 연결합니다.
+  // (term이 있는 경우에만 아래 로직이 실행됩니다)
+  else if (type === "hashtag") {
     // 해시태그 검색: 파라미터를 '%#검색어%' 형태로 가공
     const hashtagTerm = `%#${term}%`;
-    const res = await mapper.query("findBoardListByHashtag", [hashtagTerm]);
-    return res;
-  } else {
+    res = await mapper.query("findBoardListByHashtag", [hashtagTerm]);
+  }
+  // 💡 [수정] 'else'
+  else {
     // 일반 검색: 파라미터를 '%검색어%' 형태로 가공
     const searchTerm = `%${term}%`;
-    const res = await mapper.query("findBoardListByData", [
-      searchTerm,
-      searchTerm,
-    ]);
-    return res;
+    res = await mapper.query("findBoardListByData", [searchTerm, searchTerm]);
   }
+
+  // 최종 결과 시간값을 수정
+  // res가 배열이 아니면 빈 배열로 기본값 설정
+  const resultsArray = Array.isArray(res) ? res : [];
+
+  // 이제 resultsArray는 항상 배열이므로 .map()을 안전하게 사용할 수 있음
+  const resultList = resultsArray.map((item) => {
+    item.created_at = formatDate(item.created_at);
+    item.updated_at = formatDate(item.updated_at);
+    return item;
+  });
+
+  return resultList;
 };
 
 module.exports = { getExpiringNotices, getSurveyToUserWard, getBoardList };

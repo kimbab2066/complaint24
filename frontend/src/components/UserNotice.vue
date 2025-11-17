@@ -77,11 +77,11 @@ const getStatusSeverity = (status) => {
   <div class="card">
     <div class="flex items-center mb-5">
       <i class="pi pi-file-text" style="font-size: 2.5rem; color: var(--primary-color)"></i>
-      <h2 class="text-3xl font-bold ml-4">조사지 관리</h2>
+      <h2 class="text-3xl font-bold ml-4">사업 신청서 조회</h2>
     </div>
 
     <div class="survey-list-box">
-      <h3 class="text-xl font-semibold mb-4">조사지 목록</h3>
+      <h3 class="text-xl font-semibold mb-4">사업 신청서 목록</h3>
 
       <!-- 공통 테이블 컴포넌트 사용 -->
       <BaseDataTable :data="userSurveys" :columns="userColumns" :loading="loading" :rows="5">

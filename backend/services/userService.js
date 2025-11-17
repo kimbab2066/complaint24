@@ -82,4 +82,18 @@ const getUserSurveys = async (userName) => {
   return res;
 };
 
-module.exports = { getExpiringNotices, getSurveyToUserWard, getBoardList, getUserSurveys };
+const getInquiries = async () => {
+  const inquiryResults = await mapper.query("findInquiries");
+  
+  if (!Array.isArray(inquiryResults)) {
+    return [];
+  }
+
+  const res = inquiryResults.map((item) => {
+    item.created_at = formatDate(item.created_at);
+    return item;
+  });
+  return res;
+};
+
+module.exports = { getExpiringNotices, getSurveyToUserWard, getBoardList, getUserSurveys, getInquiries };

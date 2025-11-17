@@ -59,8 +59,17 @@ router.get("/user-surveys", async (req, res) => {
   } catch (err) {
     return res.status(500).send({ err: "Failed to get user surveys: " + err });
   }
-  console.log("user-surveys 결과: ", surveys);
-  res.send({ result: surveys });
+  res.status(200).send({ result: surveys });
+});
+
+router.get("/user-inquiries", async (req, res) => {
+  let inquiries = [];
+  try {
+    inquiries = await userService.getInquiries();
+  } catch (err) {
+    return res.status(500).send({ err: "Failed to get user inquiries: " + err });
+  }
+  res.status(200).send({ result: inquiries });
 });
 
 module.exports = router;

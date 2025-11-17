@@ -108,6 +108,20 @@ ORDER BY
     w.name, n.business_end
 `;
 
+const findInquiries = `
+SELECT
+    i.inquiry_no,
+    i.inquiry_name,
+    n.business_name,
+    i.created_at
+FROM
+    inquiry i
+LEFT JOIN
+    notice n ON i.notice_no = n.notice_no
+ORDER BY
+    i.created_at DESC
+`;
+
 module.exports = {
   findUserById,
   findExpiringNotices,
@@ -117,4 +131,5 @@ module.exports = {
   findBoardListByData,
   findBoardListByHashtag,
   findUserSurveys,
+  findInquiries,
 };

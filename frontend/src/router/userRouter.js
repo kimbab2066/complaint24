@@ -34,4 +34,9 @@ export default [
     name: 'sn',
     component: () => import('@/components/StaffNotice.vue'),
   },
+  {
+    path: '/ui',
+    name: 'ui',
+    component: () => import('@/components/UserInquiry.vue'),
+  },
 ];

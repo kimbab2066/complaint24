@@ -2,7 +2,7 @@ const mapper = require("../database/mappers/mapper");
 
 const formatDate = (date) => {
   // date 값이 null이거나 유효하지 않은 경우, 에러를 발생시키는 대신 null을 반환
-  if (!date || new Date(date).toString() === 'Invalid Date') {
+  if (!date || new Date(date).toString() === "Invalid Date") {
     return null;
   }
 
@@ -74,7 +74,7 @@ const getBoardList = async (searchParams) => {
 
 const getUserSurveys = async (userName) => {
   const surveyResults = await mapper.query("findUserSurveys", userName);
-  
+
   const res = surveyResults.map((item) => {
     item.deadline = formatDate(item.deadline);
     return item;
@@ -84,7 +84,7 @@ const getUserSurveys = async (userName) => {
 
 const getInquiries = async () => {
   const inquiryResults = await mapper.query("findInquiries");
-  
+
   if (!Array.isArray(inquiryResults)) {
     return [];
   }
@@ -96,4 +96,51 @@ const getInquiries = async () => {
   return res;
 };
 
-module.exports = { getExpiringNotices, getSurveyToUserWard, getBoardList, getUserSurveys, getInquiries };
+const getInquiryDetail = async (inquiryNo) => {
+  console.log(
+    `*************************************************\n Getting details for inquiryNo: ${inquiryNo}`
+  );
+  const inquiryDetailResult = await mapper.query(
+    "findInquiryDetail",
+    inquiryNo
+  );
+
+  if (!Array.isArray(inquiryDetailResult) || inquiryDetailResult.length === 0) {
+    return null;
+  }
+
+  const item = inquiryDetailResult[0];
+
+  item.created_at = formatDate(item.created_at);
+  item.updated_at = formatDate(item.updated_at);
+  item.business_end = formatDate(item.business_end);
+
+  return item;
+};
+
+const getInquiryQuestions = async (inquiryNo) => {
+  const questions = await mapper.query("findInquiryQuestions", inquiryNo);
+  return questions.map(q => ({
+    question_no: q.question_no,
+    question_content: q.question_content,
+    is_required: q.is_required,
+    response_type: q.response_type
+  }));
+};
+
+const saveInquiryAnswers = async (inquiryNo, answers) => {
+  const values = answers.map(answer => [inquiryNo, answer.id, answer.answer]);
+  const result = await mapper.query("insertInquiryAnswers", [values]);
+  return result;
+};
+
+module.exports = {
+  getExpiringNotices,
+  getSurveyToUserWard,
+  getBoardList,
+  getUserSurveys,
+  getInquiries,
+  getInquiryDetail,
+  saveInquiryAnswers,
+  getInquiryQuestions,
+};

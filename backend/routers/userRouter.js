@@ -2,6 +2,10 @@ const express = require("express");
 const router = express.Router();
 const consultService = require("../services/consultService");
 const userService = require("../services/userService");
+// const { verifyAccessToken } = require('../middleware/authMiddleware');
+
+// router.use(verifyAccessToken);
+
 // const authMiddleware = require('../middleware/authMiddleware'); // [참고] 실제로는 로그인 인증 필요
 
 // GET /api/schedule/available : 예약 가능한 모든 날짜/시간 조회
@@ -67,9 +71,51 @@ router.get("/user-inquiries", async (req, res) => {
   try {
     inquiries = await userService.getInquiries();
   } catch (err) {
-    return res.status(500).send({ err: "Failed to get user inquiries: " + err });
+    return res
+      .status(500)
+      .send({ err: "Failed to get user inquiries: " + err });
   }
   res.status(200).send({ result: inquiries });
+});
+
+router.get("/user-inquiries/:id", async (req, res) => {
+  console.log("조사지 입력페이지로 야무지게 이동해야쥐.");
+  const inquiryNo = req.params.id;
+  let inquiryDetail = null;
+  try {
+    inquiryDetail = await userService.getInquiryDetail(inquiryNo);
+    if (!inquiryDetail) {
+      return res.status(404).send({ message: "Inquiry not found." });
+    }
+  } catch (err) {
+    return res
+      .status(500)
+      .send({ err: "Failed to get inquiry detail: " + err });
+  }
+  console.log("내가 받아먹을 res는 뭐하는 res일까?", inquiryDetail);
+  res.status(200).send({ result: inquiryDetail });
+});
+
+router.get("/user-inquiries/:id/questions", async (req, res) => {
+  const inquiryNo = req.params.id;
+  try {
+    const questions = await userService.getInquiryQuestions(inquiryNo);
+    res.status(200).send({ result: questions });
+  } catch (err) {
+    return res.status(500).send({ err: "Failed to get questions: " + err });
+  }
+});
+
+router.post("/user-inquiries/:id/answers", async (req, res) => {
+  const inquiryNo = req.params.id;
+  const answers = req.body.answers;
+
+  try {
+    await userService.saveInquiryAnswers(inquiryNo, answers);
+    res.status(201).send({ message: "Answers saved successfully." });
+  } catch (err) {
+    return res.status(500).send({ err: "Failed to save answers: " + err });
+  }
 });
 
 module.exports = router;

@@ -122,6 +122,43 @@ ORDER BY
     i.created_at DESC
 `;
 
+const findInquiryDetail = `
+SELECT
+    i.inquiry_no,
+    i.inquiry_name,
+    i.inquiry_writer,
+    i.inquiry_status,
+    i.created_at,
+    i.updated_at,
+    n.notice_no,
+    n.institution_name,
+    n.business_name,
+    n.content,
+    n.business_end
+FROM
+    inquiry i
+LEFT JOIN
+    notice n ON i.notice_no = n.notice_no
+WHERE
+    i.inquiry_no = ?
+`;
+
+const insertInquiryAnswers = `
+INSERT INTO inquiry_answer (inquiry_no, question_no, answer_content)
+VALUES ?
+`;
+
+const findInquiryQuestions = `
+SELECT
+    business_no AS question_no,
+    answer_list AS question_content,
+    must AS is_required,
+    answer AS response_type
+FROM inquiry_list
+WHERE inquiry_no = ?
+ORDER BY business_no ASC
+`;
+
 module.exports = {
   findUserById,
   findExpiringNotices,
@@ -132,4 +169,7 @@ module.exports = {
   findBoardListByHashtag,
   findUserSurveys,
   findInquiries,
+  findInquiryDetail,
+  insertInquiryAnswers,
+  findInquiryQuestions,
 };

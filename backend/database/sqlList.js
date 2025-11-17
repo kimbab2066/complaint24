@@ -3,7 +3,7 @@ const boards = require("./sqls/board.js");
 const users = require("./sqls/user.js");
 const consult = require("./sqls/consult.js");
 const signUp = require("./sqls/signup.js");
-
+const dataBoard = require("./sqls/databoard.js");
 const inquiry = require("./sqls/inquiry.js");
 const staff = require("./sqls/staff.js");
 module.exports = {
@@ -13,4 +13,5 @@ module.exports = {
   ...inquiry,
   ...signUp,
   ...staff,
+  ...dataBoard,
 };

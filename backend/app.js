@@ -52,6 +52,8 @@ app.use("/system/survey", surveyRouter);
 const staffRouter = require("./routers/staffRouter");
 app.use("/staff", staffRouter);
 
+const dataBoardRouter = require("./routers/dataBoardRouter.js");
+app.use("/system/data-board", dataBoardRouter);
 // [수정] 가장 일반적인 라우터를 마지막에 등록
 const boardRouter = require("./routers/router.js");
 app.use("/", boardRouter);

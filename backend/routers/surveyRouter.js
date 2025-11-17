@@ -56,7 +56,7 @@ router.post("/", async (req, res) => {
     // (sqlList.js에 정의된 inquiryInsert 키 사용)
     const inquiryResult = await conn.query(sql.inquiryInsert, [
       surveyName,
-      writer || "관리자", // (임시) 작성자
+      writer || "시스템 관리자", // (임시) 작성자
       status.code,
       null, // notice_no (null로 가정)
     ]);
@@ -75,6 +75,7 @@ router.post("/", async (req, res) => {
         question.content,
         question.responseType.code, // '서술형' 등
         question.required, // true/false
+        newInquiryNo,
         question.priority ? question.priority.name : null, // '긴급' 또는 null
       ]);
     }
@@ -123,7 +124,7 @@ router.get("/detail/:id", async (req, res) => {
     connection = await connectionPool.getConnection();
 
     // [쿼리 1] 기본 정보
-    const [basicInfoRows] = await connection.query(sql.inquiryOrderBy, [id]);
+    const basicInfoRows = await connection.query(sql.inquiryOrderBy, [id]); // [{}]
 
     if (basicInfoRows.length === 0) {
       console.log(`[surveyRouter.js] ID ${id} 없음.`);
@@ -133,8 +134,8 @@ router.get("/detail/:id", async (req, res) => {
     }
 
     // [쿼리 2] 질문 목록
-    const [questions] = await connection.query(sql.inquiryListOrderBy, [id]);
-
+    const questions = await connection.query(sql.inquiryListOrderBy, [id]);
+    console.log(questions);
     // [성공] 데이터 합쳐서 응답
     const responseData = {
       basicInfo: basicInfoRows[0],

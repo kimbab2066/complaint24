@@ -32,20 +32,19 @@ router.get("/user-notices", async (req, res) => {
 });
 
 router.get("/userwiter-survey", async (req, res) => {
-  console.log("************\n\nuserRouter - GET /userwiter-survey called");
   // req에서 받은 userName을 서비스로 전달
   let survey = [];
   try {
+    // 임시로 "test" 사용자명 사용
     survey = await userService.getSurveyToUserWard("test");
-    console.log("test nowSurvey is !!!!!!!", survey);
   } catch (err) {
-    console.error("Error fetching survey:", err);
     res.send({ err: "userwiter-survey Err: " + err });
   }
   res.send({ result: survey });
 });
 
 router.get("/user-board", async (req, res) => {
+  console.log("user-board query is called");
   const { term, type } = req.query;
   let boardList = await userService.getBoardList({ term, type });
   res.send({ result: boardList });

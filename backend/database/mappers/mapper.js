@@ -58,7 +58,24 @@ const query = async (alias, values) => {
   }
 };
 
+// 새로운 함수 추가 동적으로 생성된 쿼리문을 실행하기 위함
+const dynamicQuery = async (query, values) => {
+  // query: 동적으로 생성된 전체 SQL문자열
+  // values: SQL문 안에 선언된 '?'들을 대체할 값
+  let conn = null;
+  try {
+    conn = await connectionPool.getConnection();
+    // 동적으로 생성된 쿼리문자열을 직접 실행
+    let result = await conn.query(query, values);
+    return result;
+  } finally {
+    // poo로 release
+    if (conn) conn.release();
+  }
+};
+
 module.exports = {
   query,
   connectionPool,
+  dynamicQuery,
 };

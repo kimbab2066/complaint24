@@ -21,6 +21,21 @@ const systemRouter = [
         component: () => import('@/views/uikit/system_ui/SystemInstitution.vue'),
       },
       {
+        path: '/system/institutions/register',
+        name: 'sysInstitutionRegister',
+        component: () => import('@/views/uikit/system_ui/SystemInstitutionRegister.vue'),
+      },
+      {
+        path: '/system/institutions/:id',
+        name: 'sysInstitutionDetails',
+        component: () => import('@/views/uikit/system_ui/SystemInstitutionDetails.vue'),
+      },
+      {
+        path: '/system/institutions/:id',
+        name: 'sysInstitutionUpdate',
+        component: () => import('@/views/uikit/system_ui/SystemInstitutionUpdate.vue'),
+      },
+      {
         path: '/system/supportplan',
         name: 'sysSupportplan',
         component: () => import('@/views/uikit/system_ui/SystemSupportplan.vue'),

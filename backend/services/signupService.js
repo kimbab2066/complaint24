@@ -1,3 +1,4 @@
+// 비즈니스 로직
 const db = require("../database/mappers/mapper.js");
 const bcrypt = require("bcrypt"); // 비밀번호 보안
 const jwt = require("jsonwebtoken"); // USER,STAFF,ADMIN,SYS확인
@@ -33,6 +34,7 @@ const register = async (userData) => {
     phone,
     fullAddress, // mapper에서는 address
     role,
+    institution_no,
   ];
   // DB 쿼리 실행
   await db.query("signUpUser", values);

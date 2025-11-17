@@ -1,19 +1,66 @@
 <script setup>
 // vue에서 제공하는 데이터 테이블을 깔끔하게 볼 수 있는 기능
-import { Column } from 'primevue';
-import { ref } from 'vue';
+import { DataTable, Column, Tag, Button } from 'primevue';
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
 
-// DB에서 기관 담당자, 기관 관리자의 정보를 가져와야함
-const approvalList = ref([
-  {
-    user_id: 'admin',
-    user_name: 'admin',
-    institution_name: 'A기관',
-    role: '3a', // 공통코드 참조
-    applicationDate: '2025-11-10', // 실제 권한 승인 신청한 날짜로 변경
-    status: 'READY', // 'READY', 'ACTVIE'
-  },
-]);
+// DB에서 정보를 가져와야함
+const approvalList = ref([]);
+
+// 날짜 포맷팅 함수
+const formatData = (dateString) => {
+  if (!dateString) return 'N/A';
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      return '유효하지 않은 날짜';
+    }
+    return date.toLocaleDateString('ko-KR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    });
+  } catch (error) {
+    return '날짜 포맷 오류';
+  }
+};
+
+const getRoleText = (role) => {
+  switch (role) {
+    case '2a':
+      return '기관 담당자';
+    case '3a':
+      return '기관 관리자';
+    default:
+      return role;
+  }
+};
+
+// 승인 상태에 따라 태그 색상 정의
+const getStatus = (status) => {
+  switch (status) {
+    case 'READY':
+      return 'warning';
+    case 'ACTIVE':
+      return 'success';
+    default:
+      return 'secondary';
+  }
+};
+
+const getApprovalList = async () => {
+  try {
+    // backend 서버의 API
+    const response = await axios.get('/api/approval');
+    approvalList.value = response.data;
+  } catch (error) {
+    console.error('권한 승인 대기 목록 오류', error);
+  }
+};
+// vue 컴포넌트가 로드될 때 데이터를 가져오도록
+onMounted(() => {
+  getApprovalList();
+});
 </script>
 
 <template>
@@ -21,12 +68,16 @@ const approvalList = ref([
     <h2 class="page-subtitle">신규 관리자 및 담당자 승인 대기 목록</h2>
 
     <div class="table-container">
+      <div v-if="!approvalList.length" class="empty-list-message">
+        <i class="pi pi-check-circle"></i>
+        <p>현재 승인 대기 중인 사용자가 없습니다</p>
+      </div>
       <!-- paginator은 DataTable이 가지고 있는 페이징 기능 -->
-      <DataTable :value="approvalList" paginator :rows="10" class="p-datatable-gridlines">
+      <DataTable v-else :value="approvalList" paginator :rows="10" class="p-datatable-gridlines">
         <Column field="user_id" header="신청자명" style="width: 15%; min-width: 120px"></Column>
 
         <Column
-          field="institution_name"
+          field="institution_no"
           header="소속기관"
           style="width: 15%; min-width: 120px"
         ></Column>
@@ -40,15 +91,13 @@ const approvalList = ref([
           </template>
         </Column>
 
-        <Column
-          field="applicationDate"
-          header="신청일자"
-          style="width: 15%; min-width: 120px"
-        ></Column>
+        <Column field="applicationDate" header="신청일자" style="width: 15%; min-width: 120px">
+          <template #body="slotProps">{{ formatDate(slotProps.data.applicationDate) }}</template>
+        </Column>
 
         <Column field="status" header="상태" style="width: 15%; min-width: 100px">
           <template #body="slotProps">
-            <Tag :value="slotProps.data.status"></Tag>
+            <Tag :value="slotProps.data.status" :severity="getStatus(slotProps.data.status)"></Tag>
           </template>
         </Column>
 

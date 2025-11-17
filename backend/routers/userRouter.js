@@ -50,4 +50,17 @@ router.get("/user-board", async (req, res) => {
   res.send({ result: boardList });
 });
 
+router.get("/user-surveys", async (req, res) => {
+  let surveys = [];
+  console.log("user-surveys 호출: ");
+  try {
+    // TODO: 추후 실제 로그인된 사용자 정보로 변경 필요
+    surveys = await userService.getUserSurveys("test");
+  } catch (err) {
+    return res.status(500).send({ err: "Failed to get user surveys: " + err });
+  }
+  console.log("user-surveys 결과: ", surveys);
+  res.send({ result: surveys });
+});
+
 module.exports = router;

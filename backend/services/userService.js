@@ -72,4 +72,14 @@ const getBoardList = async (searchParams) => {
   return resultList;
 };
 
-module.exports = { getExpiringNotices, getSurveyToUserWard, getBoardList };
+const getUserSurveys = async (userName) => {
+  const surveyResults = await mapper.query("findUserSurveys", userName);
+  
+  const res = surveyResults.map((item) => {
+    item.deadline = formatDate(item.deadline);
+    return item;
+  });
+  return res;
+};
+
+module.exports = { getExpiringNotices, getSurveyToUserWard, getBoardList, getUserSurveys };

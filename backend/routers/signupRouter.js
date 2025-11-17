@@ -8,7 +8,7 @@ const db = require("../database/mappers/mapper.js");
 const router = express.Router();
 
 // // POST /signup
-router.post("/register", async (req, res) => {
+router.post("/", async (req, res) => {
   try {
     // body에서 vue.js가 보낸 데이터 추출
     const userData = req.body;

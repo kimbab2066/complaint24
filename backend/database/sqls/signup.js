@@ -7,6 +7,7 @@ const signUpUser = {
   signUpUser: `INSERT INTO member (user_id, password, user_name, birthday, email, phone, address, role, created_at)
     VALUES(?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
 };
+// institution_no 가 필요한데 이게 회원가입할 때 필요한지 기억이 안남
 
 module.exports = {
   signUpUser: signUpUser.signUpUser,

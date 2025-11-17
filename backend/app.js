@@ -44,6 +44,15 @@ app.use("/user", userRouter);
 // 회원가입 모듈
 const signupRouter = require("./routers/signupRouter.js");
 app.use("/register", signupRouter);
+
+// 시스템 관리자의 권한 승인 목록 보기 모듈
+const approvalRouter = require("./routers/approvalRouter.js");
+app.use("/approval", approvalRouter);
+
+// 시스템 관리자의 등록된 기관 목록 보기 모듈
+const institutionRouter = require("./routers/systemRouter.js");
+app.use("/institutions", institutionRouter);
+
 //조사지 등록 모듈
 const surveyRouter = require("./routers/surveyRouter.js");
 app.use("/system/survey", surveyRouter);

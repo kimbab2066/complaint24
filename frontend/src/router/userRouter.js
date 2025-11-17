@@ -10,6 +10,11 @@ export default [
     component: () => import('@/views/UserMyPage.vue'),
   },
   {
+    path: '/test',
+    name: 'test',
+    component: () => import('@/views/test.vue'),
+  },
+  {
     path: '/uds',
     name: 'uds',
     component: () => import('@/components/UserSearch.vue'),

@@ -1,23 +1,20 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import Card from 'primevue/card';
 import Button from 'primevue/button';
 import Tag from 'primevue/tag';
+import axios from 'axios';
 
-const users = ref([
-    {
-        id: 1,
-        name: '일반 이용자 이름',
-        phone: '02-1234-5678',
-        status: '대기중'
-    },
-    {
-        id: 2,
-        name: '일반 이용자 이름',
-        phone: '02-1234-5678',
-        status: '지원중'
+const users = ref([]);
+
+onMounted(async () => {
+    try {
+        const response = await axios.get('/api/user/users/by-institution?institution_no=1');
+        users.value = response.data.result;
+    } catch (error) {
+        console.error('이용자 목록을 불러오는 데 실패했습니다:', error);
     }
-]);
+});
 
 const getSeverity = (status) => {
     switch (status) {
@@ -35,11 +32,11 @@ const getSeverity = (status) => {
     <div class="user-list-container">
         <h2 class="list-title">이용자 목록</h2>
         <div class="user-cards">
-            <Card v-for="user in users" :key="user.id" class="user-card">
+            <Card v-for="user in users" :key="user.user_id" class="user-card">
                 <template #header>
                     <div class="card-header">
                         <div class="user-details">
-                            <p class="user-name">{{ user.name }}</p>
+                            <p class="user-name">{{ user.user_name }}</p>
                             <p class="user-contact">연락처: {{ user.phone }}</p>
                         </div>
                         <Tag :value="user.status" :severity="getSeverity(user.status)" />

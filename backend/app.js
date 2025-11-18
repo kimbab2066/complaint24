@@ -41,6 +41,10 @@ console.log("[app.js] 3. authRouter loaded.");
 const userRouter = require("./routers/userRouter");
 app.use("/user", userRouter);
 
+// 담당자 모듈
+const staffRouter = require("./routers/staffRouter.js");
+app.use("/staff", staffRouter);
+
 // 회원가입 모듈
 const signupRouter = require("./routers/signupRouter.js");
 app.use("/register", signupRouter);
@@ -56,10 +60,6 @@ app.use("/institutions", institutionRouter);
 //조사지 등록 모듈
 const surveyRouter = require("./routers/surveyRouter.js");
 app.use("/system/survey", surveyRouter);
-
-//유저 모듈
-const staffRouter = require("./routers/staffRouter");
-app.use("/staff", staffRouter);
 
 const dataBoardRouter = require("./routers/dataBoardRouter.js");
 app.use("/system/data-board", dataBoardRouter);

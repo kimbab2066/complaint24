@@ -35,6 +35,16 @@ const staffRouter = [
         name: 'applicationform',
         component: () => import('@/views/uikit/ApplicationForm.vue'),
       },
+      {
+        path: '/staffschedule-settings',
+        name: 'staffschedule-settings',
+        component: () => import('@/views/pages/staff/StaffScheduleSettings.vue'),
+      },
+      {
+        path: '/reservations',
+        name: 'reservations',
+        component: () => import('@/views/pages/staff/Reservations.vue'),
+      },
     ],
   },
 ];

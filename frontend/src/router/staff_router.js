@@ -40,6 +40,11 @@ const staffRouter = [
         name: 'staffschedule-settings',
         component: () => import('@/views/pages/staff/StaffScheduleSettings.vue'),
       },
+      {
+        path: '/reservations',
+        name: 'reservations',
+        component: () => import('@/views/pages/staff/Reservations.vue'),
+      },
     ],
   },
 ];

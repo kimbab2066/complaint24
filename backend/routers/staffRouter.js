@@ -26,4 +26,24 @@ router.delete(
   staffService.deleteSchedule
 );
 
+// 담당자 예약 관리 (ReservationManagement.vue 연동)
+/**
+ * 4. 담당자 예약 목록 조회 (GET /api/staff/reservations)
+ * - (요구사항 1, 2)
+ */
+router.get(
+  "/reservations",
+  verifyAccessToken,
+  staffService.getStaffReservations
+);
+
+/**
+ * 5. 담당자 예약 취소 (POST /api/staff/reservations/cancel/:at_no)
+ * - (요구사항 3)
+ */
+router.post(
+  "/reservations/cancel/:at_no",
+  verifyAccessToken,
+  staffService.cancelStaffReservation
+);
 module.exports = router;

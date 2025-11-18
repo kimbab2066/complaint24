@@ -89,6 +89,8 @@ api.interceptors.response.use(
 );
 
 // API 서비스 객체
+
+// --- (사용자용) 예약 API ---
 export const reservationApi = {
   /**
    * 나의 상담 내역을 조회합니다.
@@ -142,6 +144,38 @@ export const staffScheduleApi = {
   deleteSchedule: (at_no) => {
     return api.delete(`/api/staff/schedule/delete/${at_no}`);
   },
+};
+
+// --- (담당자용) 예약 관리 API ---
+/**
+ * 담당자 예약 관리 관련 API (상담 예약 관리 페이지용)
+ */
+export const staffReservationApi = {
+  /**
+   * 담당자에게 배정된 예약 목록을 검색/조회합니다.
+   * (GET /api/staff/reservations)
+   * @param {object} params - { searchType, startDate, endDate, keyword }
+   * @returns {Promise<AxiosResponse<any>>}
+   */
+  getReservations: (params) => {
+    // params 예: { searchType: 'date', startDate: '2025-11-01', endDate: '2025-11-30' }
+    // params 예: { searchType: 'applicant', keyword: '김민수' }
+    return api.get('/api/staff/reservations', { params });
+  },
+
+  /**
+   * 담당자가 예약을 취소시킵니다. (available_time의 at_no 기준)
+   * (POST /api/staff/reservations/cancel/:at_no)
+   * @param {number} at_no - 취소할 'available_time'의 ID
+   * @returns {Promise<AxiosResponse<any>>}
+   */
+  cancelReservationByStaff: (at_no) => {
+    // 요구사항 3: 담당자가 취소 시 at_no를 기준으로 '상담불가' 상태로 변경
+    return api.post(`/api/staff/reservations/cancel/${at_no}`);
+  },
+
+  // (참고) '기록 작성'은 페이지 이동(location.href)으로 처리하거나,
+  // 별도 API (예: /api/staff/records/create)를 호출할 수 있습니다.
 };
 
 export default api;

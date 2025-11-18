@@ -152,21 +152,38 @@ exports.createSchedule = async (req, res) => {
         if (recurring_rules === "weekly") {
           if (currentDayOfWeek === dayOfWeek) {
             const newStartDate = new Date(currentDate);
-            newStartDate.setHours(baseStartDate.getHours(), baseStartDate.getMinutes(), baseStartDate.getSeconds());
-            
+            newStartDate.setHours(
+              baseStartDate.getHours(),
+              baseStartDate.getMinutes(),
+              baseStartDate.getSeconds()
+            );
+
             const newEndDate = new Date(currentDate);
-            newEndDate.setHours(baseEndDate.getHours(), baseEndDate.getMinutes(), baseEndDate.getSeconds());
+            newEndDate.setHours(
+              baseEndDate.getHours(),
+              baseEndDate.getMinutes(),
+              baseEndDate.getSeconds()
+            );
 
             datesToInsert.push({ start: newStartDate, end: newEndDate });
           }
         } else if (recurring_rules === "weekdays") {
-          if (currentDayOfWeek >= 1 && currentDayOfWeek <= 5) { // 월요일부터 금요일
+          if (currentDayOfWeek >= 1 && currentDayOfWeek <= 5) {
+            // 월요일부터 금요일
             const newStartDate = new Date(currentDate);
-            newStartDate.setHours(baseStartDate.getHours(), baseStartDate.getMinutes(), baseStartDate.getSeconds());
+            newStartDate.setHours(
+              baseStartDate.getHours(),
+              baseStartDate.getMinutes(),
+              baseStartDate.getSeconds()
+            );
 
             const newEndDate = new Date(currentDate);
-            newEndDate.setHours(baseEndDate.getHours(), baseEndDate.getMinutes(), baseEndDate.getSeconds());
-            
+            newEndDate.setHours(
+              baseEndDate.getHours(),
+              baseEndDate.getMinutes(),
+              baseEndDate.getSeconds()
+            );
+
             datesToInsert.push({ start: newStartDate, end: newEndDate });
           }
         }
@@ -179,7 +196,7 @@ exports.createSchedule = async (req, res) => {
     for (const datePair of datesToInsert) {
       const params = [
         datePair.start, // Date 객체
-        datePair.end,   // Date 객체
+        datePair.end, // Date 객체
         staff_name,
         recurring_rule_char,
       ];
@@ -190,7 +207,6 @@ exports.createSchedule = async (req, res) => {
       message: "스케줄이 성공적으로 등록되었습니다.",
       count: datesToInsert.length, // 몇 건이 등록되었는지 정보 제공
     });
-
   } catch (error) {
     console.error("스케줄 생성 오류:", error);
     res.status(500).send({ message: "스케줄 등록 중 오류가 발생했습니다." });
@@ -222,5 +238,85 @@ exports.deleteSchedule = async (req, res) => {
   } catch (error) {
     console.error("스케줄 삭제 오류:", error);
     res.status(500).send({ message: "스케줄 삭제 중 오류가 발생했습니다." });
+  }
+};
+
+// --- [신규 추가] 담당자 예약 관리 ---
+
+/**
+ * [신규] 4. 담당자 예약 목록 조회 (GET /api/staff/reservations)
+ * - (요구사항 1, 2)
+ */
+exports.getStaffReservations = async (req, res) => {
+  const staff_name = req.user.name; // 인증된 담당자 이름
+  const { searchType, startDate, endDate, keyword } = req.query;
+
+  if (!staff_name) {
+    return res.status(401).send({ message: "인증 정보가 없습니다." });
+  }
+
+  try {
+    const queryParams = [staff_name];
+    let queryName = "getStaffReservationsBase"; // 기본 쿼리
+
+    // 검색 조건에 따라 쿼리 이름과 파라미터 동적 변경
+    if (searchType === "date" && startDate && endDate) {
+      queryName = "getStaffReservationsByDate";
+      queryParams.push(startDate, endDate);
+    } else if (searchType === "applicant" && keyword) {
+      queryName = "getStaffReservationsByApplicant";
+      queryParams.push(`%${keyword}%`);
+    } else if (searchType === "reason" && keyword) {
+      queryName = "getStaffReservationsByReason";
+      queryParams.push(`%${keyword}%`);
+    }
+
+    const reservations = await db.query(queryName, queryParams);
+    res.status(200).json(reservations);
+  } catch (error) {
+    console.error("담당자 예약 목록 조회 오류:", error);
+    res.status(500).send({ message: "예약 목록 조회 중 오류가 발생했습니다." });
+  }
+};
+
+/**
+ * [신규] 5. 담당자 예약 취소 (POST /api/staff/reservations/cancel/:at_no)
+ * - (요구사항 3)
+ */
+exports.cancelStaffReservation = async (req, res) => {
+  const staff_name = req.user.name; // 인증된 담당자 이름
+  const { at_no } = req.params;
+
+  if (!at_no) {
+    return res
+      .status(400)
+      .send({ message: "취소할 예약 ID(at_no)가 필요합니다." });
+  }
+  if (!staff_name) {
+    return res.status(401).send({ message: "인증 정보가 없습니다." });
+  }
+
+  try {
+    const result = await db.query("cancelStaffReservation", [
+      at_no,
+      staff_name,
+    ]);
+
+    if (result.affectedRows === 0) {
+      // 본인 스케줄이 아니거나, '예약' 상태가 아님
+      return res
+        .status(404)
+        .send({ message: "취소할 예약을 찾을 수 없거나 권한이 없습니다." });
+    }
+
+    // (중요) TODO: (요구사항 3) 신청자(사용자)에게 취소 알림 전송 로직
+    console.log(
+      `(Notification) at_no: ${at_no} 예약이 담당자에 의해 취소됨. 사용자에게 알림 전송 필요.`
+    );
+
+    res.status(200).send({ message: "예약이 성공적으로 취소되었습니다." });
+  } catch (error) {
+    console.error("담당자 예약 취소 오류:", error);
+    res.status(500).send({ message: "예약 취소 중 오류가 발생했습니다." });
   }
 };

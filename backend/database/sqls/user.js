@@ -184,6 +184,60 @@ VALUES ?
 `,
 };
 
+const getUsersByInstitutionNo = `
+SELECT
+    user_id,
+    user_name,
+    phone,
+    status
+FROM
+    member
+WHERE
+    institution_no = ? AND role = 'USER'
+`;
+
+const wardSqls = {
+  findWardsByGuardianName: `
+    SELECT
+      w.*,
+      p.priority_status
+    FROM
+      ward w
+    LEFT JOIN
+      priority p ON w.ward_no = p.ward_no
+    WHERE
+      w.guardian_name = ?
+  `,
+  insertWard: `
+    INSERT INTO ward (ward_rrn, name, sex, address, guardian_name, guardian_relation, disabled_level, age, created_at) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
+  `,
+  updateWard: `
+    UPDATE ward 
+    SET ward_rrn = ?, name = ?, sex = ?, address = ?, guardian_relation = ?, disabled_level = ?, age = ?
+    WHERE ward_no = ?
+  `
+};
+
+const myInfoSqls = {
+  findUserByUsername: `
+    SELECT * FROM member WHERE user_name = ?
+  `,
+  applyToInstitution: `
+    UPDATE member SET institution_no = ?, status = 'READY' WHERE user_id = ?
+  `,
+  findAllInstitutions: `
+    SELECT institution_no, institution_name FROM institution
+  `,
+  updateUser: `
+    UPDATE member SET phone = ?, address = ?, email = ? WHERE user_id = ?
+  `,
+  updatePassword: `
+    UPDATE member SET password = ? WHERE user_id = ?
+  `
+};
+
+
 module.exports = {
   findUserById,
   findExpiringNotices,
@@ -195,4 +249,10 @@ module.exports = {
   findUserSurveys,
 
   ...userInquirySqls,
+
+  getUsersByInstitutionNo,
+
+  ...wardSqls,
+
+  ...myInfoSqls
 };

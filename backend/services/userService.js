@@ -311,6 +311,18 @@ const changePassword = async (userId, passwordData) => {
   return await mapper.query("updatePassword", [hashedNewPassword, userId]);
 };
 
+// Called by: src/views/UserSupportPlanDetail.vue
+const getSupportPlanDetail = async (inquiryNo) => {
+  const result = await mapper.query("findSupportPlanDetailByInquiryNo", inquiryNo);
+  if (!Array.isArray(result) || result.length === 0) {
+    return null;
+  }
+  const item = result[0];
+  item.created_at = formatDate(item.created_at);
+  item.updated_at = formatDate(item.updated_at);
+  return item;
+};
+
 module.exports = {
   getExpiringNotices,
   getSurveyToUserWard,
@@ -333,4 +345,5 @@ module.exports = {
   applyToInstitution,
   updateUserInfo,
   changePassword,
+  getSupportPlanDetail,
 };

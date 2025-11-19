@@ -55,4 +55,10 @@ export default [
     component: () => import('@/views/pages/user/UserWardInfoInsert.vue'),
     props: true,
   },
+  {
+    path: '/user/support-plan/:inquiry_no',
+    name: 'user-support-plan-detail',
+    component: () => import('@/views/UserSupportPlanDetail.vue'),
+    props: true,
+  },
 ];

@@ -182,6 +182,25 @@ VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())
 INSERT INTO survey_result (business_no, survey_answer, survey_no)
 VALUES ?
 `,
+
+  findSupportPlanDetailByInquiryNo: `
+SELECT
+    sp.plan_content,
+    sp.support_plan_goal,
+    sp.support_plan_status,
+    n.business_name
+FROM
+    support_plan sp
+JOIN
+    inquiry i ON sp.inquiry_no = i.inquiry_no
+LEFT JOIN
+    notice n ON i.notice_no = n.notice_no
+WHERE
+    sp.inquiry_no = ?
+ORDER BY
+    sp.created_at DESC
+LIMIT 1
+`,
 };
 
 const getUsersByInstitutionNo = `

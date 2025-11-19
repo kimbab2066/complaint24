@@ -322,4 +322,20 @@ router.post("/apply-institution", async (req, res) => {
   }
 });
 
+// Called by: src/views/UserSupportPlanDetail.vue
+router.get("/support-plan/:inquiry_no", async (req, res) => {
+  const { inquiry_no } = req.params;
+  try {
+    const supportPlan = await userService.getSupportPlanDetail(inquiry_no);
+    if (!supportPlan) {
+      return res.status(404).send({ message: "Support plan not found." });
+    }
+    res.status(200).send({ result: supportPlan });
+  } catch (err) {
+    return res
+      .status(500)
+      .send({ err: "Failed to get support plan detail: " + err.message });
+  }
+});
+
 module.exports = router;

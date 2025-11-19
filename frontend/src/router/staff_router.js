@@ -43,6 +43,11 @@ const staffRouter = [
         name: 'reservations',
         component: () => import('@/views/pages/staff/Reservations.vue'),
       },
+      {
+        path: '/counseling-logform',
+        name: 'counseling-logform',
+        component: () => import('@/views/pages/staff/CounselingLogForm.vue'),
+      },
     ],
   },
 ];

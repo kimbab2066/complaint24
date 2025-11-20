@@ -167,6 +167,16 @@ FROM support_result
 ORDER BY support_started_at DESC
 `;
 
+const supportresultlistinfo = `
+SELECT 
+    support_content,
+    support_title,
+    support_spend,
+    support_started_at,
+    support_ended_at
+FROM support_result
+WHERE support_result_no = ?`;
+
 module.exports = {
   surveySelect,
   surveyWardJoinSelect,
@@ -181,4 +191,5 @@ module.exports = {
   deleteStaffSchedule,
   insertsupportresultquery,
   supportsearch,
+  supportresultlistinfo,
 };

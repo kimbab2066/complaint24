@@ -186,6 +186,30 @@ exports.supportResultSearch = async (req, res) => {
     res.status(500).json({ error: "지원결과 조회 실패" });
   }
 };
+// 특정 지원 결과 상세 조회
+exports.getSupportResultDetail = async (req, res) => {
+  const { support_result_no } = req.params;
+
+  if (!support_result_no) {
+    return res.status(400).send({ message: "지원 결과 번호가 필요합니다." });
+  }
+
+  try {
+    // DB에서 단일 지원 결과 조회
+    let result = await db.query("supportresultlistinfo", [support_result_no]);
+
+    if (result && result.length > 0) {
+      res.json(result[0]); // 단일 객체 반환
+    } else {
+      res.status(404).send({ message: "해당 지원 결과를 찾을 수 없습니다." });
+    }
+  } catch (error) {
+    console.error("getSupportResultDetail DB 쿼리 오류:", error);
+    res
+      .status(500)
+      .send({ message: "지원 결과 조회 중 데이터베이스 오류 발생" });
+  }
+};
 // 6. planItemList: support_plan 테이블에서 상세 항목 조회
 // ⭐ 삭제: supportPlan 함수가 planitem을 사용하게 되었으므로 이 함수는 제거합니다.
 /*

@@ -54,15 +54,25 @@ router.post(
 //지원계획신청 데이터불러오기
 router.get("/support-plan", staffService.supportPlan);
 
-//지원계획 추가
+// 지원계획 추가
 router.post("/support-plan", staffService.createSupportPlan);
 
+// 지원 결과 추가
 router.post("/support-result", staffService.createSupportResult);
 
+// 지원 결과 목록 조회
 router.get("/support-result", staffService.supportResultSearch);
 
+// 지원 결과 상세 조회 ← 여기 추가
+router.get(
+  "/support-result/:support_result_no",
+  staffService.getSupportResultDetail
+);
+
+// 설문 조회
 router.get("/survey-select", staffService.surveySelect);
 
+// 특정 설문 상세 조회
 router.get("/:surveyNo", staffService.getSurveyDetail);
 
 module.exports = router;

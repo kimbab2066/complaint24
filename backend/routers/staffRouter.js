@@ -75,4 +75,10 @@ router.get("/survey-select", staffService.surveySelect);
 // 특정 설문 상세 조회
 router.get("/:surveyNo", staffService.getSurveyDetail);
 
+//상태를 승인으로 변경
+router.post(
+  "/support-plan/SupportPlanDetail/:support_plan_no",
+  staffService.approveSupportPlan
+);
+
 module.exports = router;

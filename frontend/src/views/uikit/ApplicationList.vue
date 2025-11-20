@@ -48,6 +48,7 @@ onBeforeMount(async () => {
       spend: item.spend || 0,
       plan: item.plan || '',
       file_names: item.file_names || '',
+      support_plan_status: item.support_plan_status || item.status || '', // ✅ 상태 포함
     }));
   } catch (err) {
     console.error('Support Plan 조회 오류:', err);

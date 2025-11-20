@@ -1,30 +1,74 @@
 <script setup>
 import { ref, watch } from 'vue';
+import axios from 'axios';
 import InputText from 'primevue/inputtext';
 import Textarea from 'primevue/textarea';
-import Select from 'primevue/select';
 
 const props = defineProps({
-  item: Object, // 부모에서 전달받는 한 건의 서포트 플랜
-  dropdownItems: Array, // 사업 선택 드롭다운
+  item: Object,
+  dropdownItems: Array,
 });
 
-// 로컬 복사 (읽기 전용)
-const localForm = ref({ ...props.item });
+// localForm 초기값
+const localForm = ref({
+  support_plan_no: null,
+  support_plan_goal: '',
+  staff_name: '',
+  business_name: '',
+  spend: 0,
+  created_at: '',
+  writer_date: '',
+  priority_no: '',
+  plan: '',
+  file_names: '',
+  support_plan_status: '',
+});
 
-// props.item이 바뀌면 localForm 갱신
+// props.item이 들어오면 서버 상태로 덮어쓰기
 watch(
   () => props.item,
   (newVal) => {
-    localForm.value = { ...newVal };
-  }
+    if (newVal) {
+      localForm.value = {
+        support_plan_no: null,
+        support_plan_goal: '',
+        staff_name: '',
+        business_name: '',
+        spend: 0,
+        created_at: '',
+        writer_date: '',
+        priority_no: '',
+        plan: '',
+        file_names: '',
+        support_plan_status: '', // 초기값
+        ...newVal, // 서버에서 받은 값 덮어쓰기
+      };
+    }
+  },
+  { immediate: true }
 );
 
-// 금액 3자리 콤마 포맷
 const formatAmount = (amount) => {
   if (amount === null || amount === undefined) return '';
   const onlyNums = String(amount).replace(/[^0-9]/g, '');
   return onlyNums ? Number(onlyNums).toLocaleString() : '';
+};
+
+// 승인 처리
+const approvePlan = async () => {
+  if (!localForm.value.support_plan_no) return;
+
+  try {
+    const res = await axios.post(
+      `/api/staff/support-plan/SupportPlanDetail/${localForm.value.support_plan_no}`
+    );
+    alert(res.data.message || '승인 완료');
+    // 승인 버튼 누르면 바로 상태 업데이트
+    localForm.value.support_plan_status = '승인';
+  } catch (err) {
+    console.error(err);
+    alert('승인 중 오류 발생');
+  }
 };
 </script>
 
@@ -37,7 +81,7 @@ const formatAmount = (amount) => {
         <InputText v-model="localForm.support_plan_goal" readonly class="w-full bg-gray-100" />
       </div>
 
-      <!-- 담당자 -->
+      <!-- 작성자 -->
       <div>
         <label class="font-semibold text-gray-700">작성자</label>
         <InputText v-model="localForm.staff_name" readonly class="w-full bg-gray-100" />
@@ -71,10 +115,10 @@ const formatAmount = (amount) => {
         </div>
       </div>
 
-      <!-- 우선순위 -->
+      <!-- 현재 상태 -->
       <div>
-        <label class="font-semibold text-gray-700">우선순위</label>
-        <InputText v-model="localForm.priority_no" readonly class="w-full bg-gray-100" />
+        <label class="font-semibold text-gray-700">현재상태</label>
+        <InputText v-model="localForm.support_plan_status" readonly class="w-full bg-gray-100" />
       </div>
 
       <!-- 내용 -->
@@ -92,17 +136,10 @@ const formatAmount = (amount) => {
       </div>
       <div v-else class="text-sm text-gray-400">첨부 파일 없음</div>
 
-      <!-- 승인/반려 버튼 -->
+      <!-- 승인 버튼 -->
       <div class="flex justify-end gap-4 mt-6">
-        <!-- 반려 버튼 -->
         <button
-          class="px-6 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition-colors"
-        >
-          반려
-        </button>
-
-        <!-- 승인 버튼 -->
-        <button
+          @click="approvePlan"
           class="px-6 py-2 bg-green-500 text-white font-semibold rounded-lg hover:bg-green-600 transition-colors"
         >
           승인

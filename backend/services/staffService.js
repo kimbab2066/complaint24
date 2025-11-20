@@ -210,6 +210,25 @@ exports.getSupportResultDetail = async (req, res) => {
       .send({ message: "지원 결과 조회 중 데이터베이스 오류 발생" });
   }
 };
+//승인
+exports.approveSupportPlan = async (req, res) => {
+  const { support_plan_no } = req.params;
+
+  try {
+    const result = await db.query("updateplanstatus", [support_plan_no]);
+
+    if (result.affectedRows === 0) {
+      return res
+        .status(404)
+        .json({ message: "해당 지원 계획을 찾을 수 없습니다." });
+    }
+
+    res.json({ message: "승인 완료" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "승인 중 오류 발생" });
+  }
+};
 // 6. planItemList: support_plan 테이블에서 상세 항목 조회
 // ⭐ 삭제: supportPlan 함수가 planitem을 사용하게 되었으므로 이 함수는 제거합니다.
 /*

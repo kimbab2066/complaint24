@@ -33,9 +33,11 @@ const handleButtonClick = () => {
           {{ item.support_plan_goal }}
           <span class="text-gray-500 text-base ml-2">{{ item.created_at }}</span>
         </h2>
-        <p class="text-gray-500 text-base mt-1">작성자: {{ item.staff_name }}</p>
+        <p class="text-gray-500 text-base mt-1">{{ item.plan }}</p>
       </div>
-      <button class="px-4 py-2 text-base border rounded-lg hover:bg-gray-100">담당자</button>
+      <button class="px-4 py-2 text-base border rounded-lg hover:bg-gray-100">
+        {{ item.staff_name }}
+      </button>
     </div>
 
     <!-- 우선순위 / 요청일 / 자세히보기 -->

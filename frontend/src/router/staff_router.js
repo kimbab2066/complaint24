@@ -19,8 +19,8 @@ const staffRouter = [
         props: true,
       },
       {
-        path: 'support-result/:support_result_no', // <- '/' 제거, children 아래라면 상대 경로
-        name: 'SupportResultListInfo',
+        path: 'support-result/:support_result_no', //
+        name: 'supportresultListinfo',
         component: () => import('@/views/uikit/SupportResultListInfo.vue'),
         props: true,
       },

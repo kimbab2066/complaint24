@@ -74,10 +74,10 @@ INSERT INTO support_plan (
  spend,
  plan,
  file_no,
- priority_no,       /* ✅ priority_no 추가 */
+ priority_no,       
  support_plan_status,
- writer_date        /* ✅ writer_date 추가 */
-) VALUES ( ?, ?, ?, ?, ?, ?, ?, NOW() ) /* ✅ writer_date 위치에 NOW() 함수 사용 */
+ writer_date        
+) VALUES ( ?, ?, ?, ?, ?, ?, ?, NOW() ) 
 `;
 
 /**
@@ -174,13 +174,19 @@ const planitem = `SELECT
   writer_date,
   priority_no,
   plan,
-  business_name,  -- 추가
-  spend           -- 추가
+  business_name,  
+  spend,          
+  support_plan_status
 FROM support_plan
-ORDER BY support_plan_no DESC;`;
+ORDER BY support_plan_no DESC`;
 
-//승인상세조회 정보
-const planinfoitem = ``;
+//승인상세조회 승인
+const updateplanstatus = `
+UPDATE support_plan
+SET support_plan_status = '승인',
+    support_plan_accepted_at = NOW()
+WHERE support_plan_no = ?
+`;
 
 module.exports = {
   surveySelect,
@@ -197,5 +203,5 @@ module.exports = {
   insertsupportresultquery,
   supportsearch,
   supportresultlistinfo,
-  planinfoitem,
+  updateplanstatus,
 };

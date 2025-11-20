@@ -12,47 +12,21 @@ const supportPlan = ref(null);
 const loading = ref(true);
 const error = ref(null);
 
-// Dummy data for testing approved and rejected states
-const dummyApprovedPlan = {
-  business_name: "2023년 취약계층 지원 사업 (임시)",
-  support_plan_goal: "자립 지원 및 사회 적응력 향상 (임시)",
-  plan_content: "이것은 임시로 하드코딩된 지원 계획 내용입니다. 실제 데이터가 없을 때 표시됩니다. 지원 대상자의 필요에 맞춰 맞춤형 서비스를 제공하고, 정기적인 상담을 통해 진행 상황을 점검할 예정입니다. (임시)",
-  support_plan_status: "APPROVED", // Added status
-};
-
-const dummyRejectedPlan = {
-  business_name: "2023년 취약계층 지원 사업 (임시)",
-  support_plan_goal: "자립 지원 및 사회 적응력 향상 (임시)",
-  plan_content: "이것은 임시로 하드코딩된 지원 계획 내용입니다. 실제 데이터가 없을 때 표시됩니다. 지원 대상자의 필요에 맞춰 맞춤형 서비스를 제공하고, 정기적인 상담을 통해 진행 상황을 점검할 예정입니다. (임시)",
-  support_plan_status: "REJECTED", // Added status
-};
-
 const fetchSupportPlanDetail = async () => {
   loading.value = true;
   error.value = null;
   try {
-    // const inquiry_no = route.params.inquiry_no;
-    // if (!inquiry_no) {
-    //   error.value = 'Inquiry number is missing.';
-    //   supportPlan.value = dummyApprovedPlan; // Fallback to dummy if no inquiry_no
-    //   return;
-    // }
-    // const response = await axios.get(`/api/user/support-plan/${inquiry_no}`);
-    // if (response.data.result) {
-    //   supportPlan.value = response.data.result;
-    // } else {
-    //   supportPlan.value = dummyApprovedPlan; // Fallback to dummy if API returns no data
-    // }
+    const inquiry_no = route.params.inquiry_no;
+    const ward_no = route.params.ward_no;
 
-    // Hardcoded data assignment for testing
-    // You can switch between dummyApprovedPlan and dummyRejectedPlan to test
-    // supportPlan.value = dummyApprovedPlan; // Default to approved for now
-    supportPlan.value = dummyRejectedPlan; // Default to rejected for now
-
+    const response = await axios.get(`/api/user/support-plan`, {
+      params: { inquiry_no: inquiry_no, ward_no: ward_no },
+    });
+    if (response.data.result) {
+      supportPlan.value = response.data.result;
+    }
   } catch (err) {
     console.error('Failed to fetch support plan detail:', err);
-    error.value = '지원 계획 상세 정보를 불러오는 데 실패했습니다. 임시 데이터를 표시합니다.';
-    supportPlan.value = dummyApprovedPlan; // Fallback to dummy on error
   } finally {
     loading.value = false;
   }
@@ -81,15 +55,19 @@ onMounted(() => {
           </div>
           <div v-else class="p-fluid">
             <div class="p-field">
-              <h3>사업명: <strong>{{ supportPlan.business_name }}</strong></h3>
+              <h3>
+                사업명: <strong>{{ supportPlan.business_name }}</strong>
+              </h3>
             </div>
             <div class="p-field">
-              <h3>승인 목표: <strong>{{ supportPlan.support_plan_goal }}</strong></h3>
+              <h3>
+                승인 목표: <strong>{{ supportPlan.support_plan_goal }}</strong>
+              </h3>
             </div>
             <div class="p-field">
               <h3>승인된 내용:</h3>
               <div class="plan-content-display p-3 border-round surface-100">
-                {{ supportPlan.plan_content }}
+                {{ supportPlan.plan }}
               </div>
             </div>
           </div>
@@ -108,7 +86,10 @@ onMounted(() => {
   background: #ffffff;
   padding: 2rem;
   border-radius: 10px;
-  box-shadow: 0 2px 1px -1px rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 1px 3px 0 rgba(0,0,0,.12);
+  box-shadow:
+    0 2px 1px -1px rgba(0, 0, 0, 0.2),
+    0 1px 1px 0 rgba(0, 0, 0, 0.14),
+    0 1px 3px 0 rgba(0, 0, 0, 0.12);
 }
 .plan-form {
   border: 1px solid #ddd;
@@ -122,7 +103,9 @@ onMounted(() => {
   margin-top: 2rem;
   text-align: center;
 }
-.loading-message, .error-message, .no-data-message {
+.loading-message,
+.error-message,
+.no-data-message {
   text-align: center;
   margin-top: 20px;
   font-size: 1.1rem;

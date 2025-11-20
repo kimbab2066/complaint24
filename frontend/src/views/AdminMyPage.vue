@@ -7,6 +7,7 @@ import TabPanel from 'primevue/tabpanel';
 import Button from 'primevue/button';
 
 // 컴포넌트
+import UserMyInfoUpdate from '@/components/UserMyInfoUpdate.vue';
 import AdminInstitutionState from '@/components/AdminInstitutionState.vue';
 
 // --- 상태 관리 ---
@@ -36,7 +37,7 @@ const activeTab = ref(1); // '기관상태' 탭을 기본으로 활성화
                 <AdminInstitutionState />
             </TabPanel>
             <TabPanel header="내 정보 관리">
-                <p>내 정보 관리 컨텐츠가 준비중입니다.</p>
+                <UserMyInfoUpdate />
             </TabPanel>
         </TabView>
     </div>

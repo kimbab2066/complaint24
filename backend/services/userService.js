@@ -25,13 +25,13 @@ const getExpiringNotices = async () => {
   return res;
 };
 
-const getSurveyToUserWard = async (userName) => {
+const getSurveyToUserWard = async (userId) => {
   // 1. await로 DB 조회 결과를 '먼저' 받아옵니다. (결과: 배열)
-  const surveyResults = await mapper.query("findSurveyToUserWard", userName);
+  const surveyResults = await mapper.query("findSurveyToUserWard", userId);
 
   // 2. 받아온 '배열'에 .map()을 적용합니다.
   const res = surveyResults.map((item) => {
-    item.updated_at = formatDate(item.updated_at);
+    item.created_at = formatDate(item.created_at);
     return item;
   });
   return res;
@@ -74,8 +74,8 @@ const getBoardList = async (searchParams) => {
   return resultList;
 };
 
-const getUserSurveys = async (userName) => {
-  const surveyResults = await mapper.query("findUserSurveys", userName);
+const getUserSurveys = async (userId) => {
+  const surveyResults = await mapper.query("findUserSurveys", userId);
 
   const res = surveyResults.map((item) => {
     item.deadline = formatDate(item.deadline);
@@ -239,8 +239,8 @@ const getUsersByInstitution = async (institutionNo) => {
   return users;
 };
 
-const getWardsByGuardianName = async (guardianName) => {
-  return await mapper.query("findWardsByGuardianName", [guardianName]);
+const getWardsByGuardianId = async (guardianId) => {
+  return await mapper.query("findWardsByGuardianId", guardianId);
 };
 
 const addWard = async (wardData) => {
@@ -249,7 +249,7 @@ const addWard = async (wardData) => {
     name,
     sex,
     address,
-    guardian_name,
+    guardian_id,
     guardian_relation,
     disabled_level,
     age,
@@ -263,7 +263,7 @@ const addWard = async (wardData) => {
     name,
     sex,
     address,
-    guardian_name,
+    guardian_id,
     guardian_relation,
     disabled_level,
     age,
@@ -312,8 +312,12 @@ const changePassword = async (userId, passwordData) => {
 };
 
 // Called by: src/views/UserSupportPlanDetail.vue
-const getSupportPlanDetail = async (inquiryNo) => {
-  const result = await mapper.query("findSupportPlanDetailByInquiryNo", inquiryNo);
+const getSupportPlanDetail = async (reqData) => {
+  const { inquiry_no, ward_no } = reqData;
+  const result = await mapper.query("findSupportPlanDetailByInquiryNo", [
+    inquiry_no,
+    ward_no,
+  ]);
   if (!Array.isArray(result) || result.length === 0) {
     return null;
   }
@@ -337,7 +341,7 @@ module.exports = {
   updateSurveyAndResults,
   getMyPageSurveys,
   getUsersByInstitution,
-  getWardsByGuardianName,
+  getWardsByGuardianId,
   addWard,
   updateWard,
   getUserByUserId,

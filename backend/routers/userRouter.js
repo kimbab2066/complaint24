@@ -37,13 +37,13 @@ router.get("/user-notices", async (req, res) => {
 
 // Called by: src/views/UserDashboard.vue
 router.get("/userwiter-survey", async (req, res) => {
-  const { writer } = req.query;
-  if (!writer) {
+  const { userId } = req.query; // inquiry writer, PK
+  if (!userId) {
     return res.status(400).send({ err: "Writer query parameter is required." });
   }
   let survey = [];
   try {
-    survey = await userService.getSurveyToUserWard(writer);
+    survey = await userService.getSurveyToUserWard(userId);
   } catch (err) {
     res.send({ err: "userwiter-survey Err: " + err });
   }
@@ -218,22 +218,23 @@ router.get("/users/by-institution", async (req, res) => {
   }
 });
 
-// Ward Management Routes
+// D:\Dev\git\team-project\frontend\src\views  UserMyPage.vue -> UserWardInfoUpdate.vue
 router.get("/wards", async (req, res) => {
-  const { guardianName } = req.query;
-  if (!guardianName) {
+  const { guardianId } = req.query;
+  if (!guardianId) {
     return res
       .status(400)
-      .send({ err: "guardianName query parameter is required." });
+      .send({ err: "guardianId query parameter is required." });
   }
   try {
-    const wards = await userService.getWardsByGuardianName(guardianName);
+    const wards = await userService.getWardsByGuardianId(guardianId);
     res.status(200).send({ result: wards });
   } catch (err) {
     res.status(500).send({ err: "Failed to get wards: " + err.message });
   }
 });
 
+// D:\Dev\git\team-project\frontend\src\views  UserMyPage.vue -> UserWardInfoInsert.vue
 router.post("/wards", async (req, res) => {
   try {
     const result = await userService.addWard(req.body);
@@ -263,7 +264,7 @@ router.get("/me", async (req, res) => {
   }
   try {
     const user = await userService.getUserByUserId(userId);
-    console.log("userRouter가 반환하는 user는?", user);
+    // console.log("userRouter가 반환하는 user는?", user);
     res.status(200).send({ result: user });
   } catch (err) {
     res.status(500).send({ err: "Failed to get user info: " + err.message });
@@ -323,10 +324,10 @@ router.post("/apply-institution", async (req, res) => {
 });
 
 // Called by: src/views/UserSupportPlanDetail.vue
-router.get("/support-plan/:inquiry_no", async (req, res) => {
-  const { inquiry_no } = req.params;
+router.get("/support-plan", async (req, res) => {
+  // const { inquiry_no, ward_no } = req.params;
   try {
-    const supportPlan = await userService.getSupportPlanDetail(inquiry_no);
+    const supportPlan = await userService.getSupportPlanDetail(req.query);
     if (!supportPlan) {
       return res.status(404).send({ message: "Support plan not found." });
     }

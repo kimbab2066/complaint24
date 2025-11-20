@@ -9,6 +9,8 @@ import Button from 'primevue/button';
 // 컴포넌트
 import StaffUserList from '@/components/staff/StaffUserList.vue';
 
+import UserMyInfoUpdate from '@/components/UserMyInfoUpdate.vue';
+
 // --- 상태 관리 ---
 const activeTab = ref(1);
 
@@ -39,7 +41,7 @@ onMounted(() => {
         <p>상담 목록 컨텐츠가 준비중입니다.</p>
       </TabPanel>
       <TabPanel header="내 정보 관리">
-        <p>내 정보 관리 컨텐츠가 준비중입니다.</p>
+        <UserMyInfoUpdate />
       </TabPanel>
     </TabView>
   </div>

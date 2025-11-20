@@ -56,7 +56,7 @@ export default [
     props: true,
   },
   {
-    path: '/user/support-plan/:inquiry_no',
+    path: '/user/support-plan/:inquiry_no/:ward_no',
     name: 'user-support-plan-detail',
     component: () => import('@/views/UserSupportPlanDetail.vue'),
     props: true,

@@ -45,11 +45,13 @@ export default [
     component: () => import('@/components/UserInquiryDetail.vue'),
   },
   {
+    // 피보호자 추가
     path: '/user/ward/insert',
     name: 'user-ward-insert',
     component: () => import('@/views/pages/user/UserWardInfoInsert.vue'),
   },
   {
+    // 피보호자 수정
     path: '/user/ward/edit/:ward_no',
     name: 'user-ward-edit',
     component: () => import('@/views/pages/user/UserWardInfoInsert.vue'),

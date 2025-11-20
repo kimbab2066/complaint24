@@ -145,13 +145,13 @@ onMounted(() => {
         />
       </div>
       <div>
-        <label for="guardian_name" class="block text-sm font-medium text-gray-700"
-          >보호자 이름</label
-        >
+        <label for="guardian_name" class="block text-sm font-medium text-gray-700">
+          보호자 ID
+        </label>
         <input
           type="text"
           id="guardian_name"
-          v-model="ward.guardian_name"
+          v-model="ward.guardian_id"
           disabled
           class="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm"
         />

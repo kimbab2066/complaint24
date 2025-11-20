@@ -239,17 +239,37 @@ const wardSqls = {
 const myInfoSqls = {
   findUserByUserId: `
     SELECT 
-    user_id
-    , user_name 
-    , email
-    , phone
-    , address
-    , birthday
-    , role
-    , status
-    , institution_no
-    FROM member 
-    WHERE user_id = ?
+    m.user_id,
+    m.user_name,
+    m.email,
+    m.phone,
+    m.address,
+    m.birthday,
+    m.role,
+    m.status,
+    m.institution_no,
+    i.institution_name,
+    i.status as institution_status,
+    i.closed_at,
+    i.closed_notice
+    FROM member m
+    LEFT JOIN institution i ON m.institution_no = i.institution_no
+    WHERE m.user_id = ?
+  `,
+  getInstitutionInfo: `
+    SELECT
+      m.user_id,
+      m.user_name,
+      m.email,
+      m.phone,
+      m.role,
+      i.institution_no,
+      i.institution_name,
+      i.status,
+      i.closed_at
+    FROM member m
+    LEFT JOIN institution i ON m.institution_no = i.institution_no
+    WHERE m.user_id = ? AND m.role IN ('ADMIN', 'STAFF', 'SYS')
   `,
   applyToInstitution: `
     UPDATE member SET institution_no = ?, status = 'READY' WHERE user_id = ?
@@ -262,6 +282,9 @@ const myInfoSqls = {
   `,
   updatePassword: `
     UPDATE member SET password = ? WHERE user_id = ?
+  `,
+  updateInstitutionStatus: `
+    UPDATE institution SET status = ?, closed_at = ?, closed_notice = ?, updated_at = NOW() WHERE institution_no = ?
   `,
 };
 

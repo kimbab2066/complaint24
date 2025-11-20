@@ -188,12 +188,19 @@ const applyToInstitution = async () => {
   }
 };
 
-const currentInstitutionName = computed(() => {
-  if (currentUser.value && currentUser.value.institution_no && institutions.value.length) {
-    const found = institutions.value.find(
-      (inst) => inst.institution_no === currentUser.value.institution_no
-    );
-    return found ? found.institution_name : '알 수 없는 기관';
+const institutionStatusText = computed(() => {
+  if (!currentUser.value || !currentUser.value.institution_status) {
+    return '';
+  }
+
+  const status = currentUser.value.institution_status;
+  if (status === '1s') {
+    return '(운영중)';
+  } else if (status === '2s') {
+    const date = new Date(currentUser.value.closed_at);
+    return `(휴업, ${date.toLocaleDateString()} 까지)`;
+  } else if (status === '3s') {
+    return '(폐업)';
   }
   return '';
 });
@@ -357,7 +364,18 @@ const currentInstitutionName = computed(() => {
         </div>
       </div>
       <div v-else>
-        <p><strong>소속 기관:</strong> {{ currentInstitutionName }}</p>
+        <p>
+          <strong>소속 기관:</strong> {{ currentUser.institution_name }} {{ institutionStatusText }}
+        </p>
+        <p
+          v-if="
+            currentUser.institution_status === '3s' &&
+            currentUser.closed_notice &&
+            currentUser.closed_notice.trim() !== ''
+          "
+        >
+          <strong>기관 공지:</strong> {{ currentUser.closed_notice }}
+        </p>
         <p><strong>승인 상태:</strong> {{ currentUser.status }}</p>
       </div>
     </div>

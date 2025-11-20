@@ -254,7 +254,42 @@ router.put("/wards/:ward_no", async (req, res) => {
   }
 });
 
+router.put("/institution/:institutionNo/status", async (req, res) => {
+  try {
+    const { institutionNo } = req.params;
+    const statusData = req.body;
+    const result = await userService.updateInstitutionStatus(
+      institutionNo,
+      statusData
+    );
+    if (result.affectedRows > 0) {
+      res.status(200).send({ message: "Institution status updated." });
+    } else {
+      res.status(404).send({ message: "Institution not found." });
+    }
+  } catch (err) {
+    res
+      .status(500)
+      .send({ err: "Failed to update institution status: " + err.message });
+  }
+});
+
 // My Info Management Routes
+router.get("/institution-info/:userId", async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const institutionInfo = await userService.getInstitutionInfo(userId);
+    if (!institutionInfo) {
+      return res.status(404).send({ message: "Institution info not found." });
+    }
+    res.status(200).send({ result: institutionInfo });
+  } catch (err) {
+    res
+      .status(500)
+      .send({ err: "Failed to get institution info: " + err.message });
+  }
+});
+
 router.get("/me", async (req, res) => {
   const { userId } = req.query;
   if (!userId) {

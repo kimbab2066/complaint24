@@ -19,6 +19,12 @@ const staffRouter = [
         props: true,
       },
       {
+        path: 'support-result/:support_result_no', //
+        name: 'supportresultListinfo',
+        component: () => import('@/views/uikit/SupportResultListInfo.vue'),
+        props: true,
+      },
+      {
         path: '/activityreport',
         name: 'activityreport',
         component: () => import('@/views/uikit/ActivityReport.vue'),

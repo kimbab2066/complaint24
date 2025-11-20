@@ -65,21 +65,6 @@ WHERE
     s.survey_no = ?
 `;
 
-//일단 사용안할거같음
-const supportplan = `
-  SELECT
-    t1.support_plan_goal,
-    DATE(t1.created_at) AS 작성일,
-    t1.support_plan_status AS 우선순위_상태,
-    t1.staff_name AS 작성자_이름,
-    t1.ward_name AS 담당_구역_팀명,
-    DATE(t1.created_at) AS 요청일
-    
-FROM 
-    support_plan t1
-ORDER BY 
-    t1.created_at DESC`;
-
 const wardno = `SELECT * FROM survey WHERE survey_no = ?`;
 //지원계획
 const spportinsert = `
@@ -89,23 +74,11 @@ INSERT INTO support_plan (
  spend,
  plan,
  file_no,
- priority_no,       /* ✅ priority_no 추가 */
+ priority_no,       
  support_plan_status,
- writer_date        /* ✅ writer_date 추가 */
-) VALUES ( ?, ?, ?, ?, ?, ?, ?, NOW() ) /* ✅ writer_date 위치에 NOW() 함수 사용 */
+ writer_date        
+) VALUES ( ?, ?, ?, ?, ?, ?, ?, NOW() ) 
 `;
-
-//승인조회 정보
-const planitem = `    SELECT 
-      support_plan_no,
-      support_plan_goal,
-      staff_name,
-      created_at,
-      writer_date,
-      priority_no,
-      plan
-    FROM support_plan
-    ORDER BY support_plan_no DESC`;
 
 /**
  * 담당자 아이디(staff_id)으로 '상담가능' 스케줄 조회
@@ -172,6 +145,47 @@ INSERT INTO support_result (
 
 //지원결과보고서 조회
 const supportsearch = `
+SELECT
+  support_result_no,
+  support_title,
+  support_spend,
+  support_started_at,
+  support_ended_at
+FROM support_result
+ORDER BY support_started_at DESC
+`;
+//지원결과상세값
+const supportresultlistinfo = `
+SELECT 
+    support_content,
+    support_title,
+    support_spend,
+    support_started_at,
+    support_ended_at
+FROM support_result
+WHERE support_result_no = ?`;
+
+//승인조회 정보
+const planitem = `SELECT 
+  support_plan_no,
+  support_plan_goal,
+  staff_name,
+  created_at,
+  writer_date,
+  priority_no,
+  plan,
+  business_name,  
+  spend,          
+  support_plan_status
+FROM support_plan
+ORDER BY support_plan_no DESC`;
+
+//승인상세조회 승인
+const updateplanstatus = `
+UPDATE support_plan
+SET support_plan_status = '승인',
+    support_plan_accepted_at = NOW()
+WHERE support_plan_no = ?
 `;
 
 module.exports = {
@@ -187,4 +201,7 @@ module.exports = {
   createStaffSchedule,
   deleteStaffSchedule,
   insertsupportresultquery,
+  supportsearch,
+  supportresultlistinfo,
+  updateplanstatus,
 };

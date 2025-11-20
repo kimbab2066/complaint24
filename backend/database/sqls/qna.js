@@ -41,8 +41,6 @@ const readQuestion = `SELECT
          q.title,
          q.content,
          q.created_at,
-         q.answer_content,
-         q.answer_created_at,
          m.user_name AS writer
        FROM question q
        JOIN member m ON q.user_id = m.user_id
@@ -50,6 +48,8 @@ const readQuestion = `SELECT
 
 // supportPlan: supportplan_no 컬럼을 id와 name으로 매핑합니다.
 const supportPlan = `SELECT supportplan_no AS id, supportplan_no AS name FROM question`;
+
+const answer = `SELECT answer_no,writer,content,created_at,question_no FROM answer`;
 
 module.exports = {
   qna,

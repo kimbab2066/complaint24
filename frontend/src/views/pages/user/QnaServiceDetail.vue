@@ -14,13 +14,12 @@ app.use(ToastService);
 const router = useRouter();
 const route = useRoute();
 
-const question_id = route.params.id;
+const question_id = route.params.question_no;
 const question = ref(null);
 
 onMounted(async () => {
   try {
-    const questionId = req.params.question_no;
-    const response = await axios.get(`/api/qna/${question_id}`);
+    const response = await axios.get(`/api/qna/question-detail/${question_id}`);
     question.value = response.data;
   } catch (error) {
     console.error('질문 상세 조회 실패:', error);

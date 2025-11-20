@@ -1,8 +1,9 @@
-// DB 매퍼 임포트 (기존 mapper.js에 쿼리를 추가했다고 가정)
 const db = require("../database/mappers/mapper");
+const sqlList = require("../database/sqlList");
 
 module.exports.createLog = async (req, res) => {
   console.log("--- createLog Service ---");
+  const connection = await db.connectionPool.getConnection(); // 변경
   try {
     const {
       staff_id,
@@ -24,7 +25,6 @@ module.exports.createLog = async (req, res) => {
     }
 
     // DB 파라미터 배열 (SQL 순서와 일치해야 함)
-    // 쿼리: staff_id, ward_no, consult_datetime, disabled_level, consult_status, content
     const params = [
       staff_id,
       ward_no,
@@ -38,27 +38,56 @@ module.exports.createLog = async (req, res) => {
     ];
 
     console.log("Executing Query: createConsultationLog", params);
+    // 트랜잭션 시작
+    await connection.beginTransaction();
 
-    // DB 실행
-    const result = await db.query("createConsultationLog", params);
-
+    // 상담일지 생성
+    const result = await connection.query(
+      sqlList.createConsultationLog,
+      params
+    );
+    if (!result.insertId) {
+      throw new Error("상담 일지 생성 실패 - insertId 없음");
+    }
     console.log("Consultation Log Created. Insert ID:", result.insertId);
-
+    // 예약 상태 업데이트
+    console.log("Executing Query (updateReservationToBooked):", res_no);
+    await connection.query(sqlList.updateReservationToBooked, [res_no]);
+    // 문제없으면 커밋
+    await connection.commit();
     res.status(201).send({
       message: "상담 일지가 등록되었습니다.",
       logId: result.insertId,
     });
   } catch (error) {
-    console.error("상담 일지 등록 오류:", error);
+    console.error("트랜잭션 오류:", error);
+    // 실패 시 롤백
+    try {
+      await connection.rollback();
+    } catch (rollbackError) {
+      console.error("롤백 실패:", rollbackError);
+    }
+
     res.status(500).send({ message: "상담 일지 등록 중 오류가 발생했습니다." });
+  } finally {
+    if (connection) connection.release();
   }
 };
 
 module.exports.saveDraft = async (req, res) => {
   console.log("--- saveDraft Service ---");
   try {
-    const { staff_id, ward_no, consult_datetime, disabled_level, content } =
-      req.body;
+    const {
+      staff_id,
+      ward_no,
+      guardian_id,
+      consult_datetime,
+      disabled_level,
+      consult_status,
+      content,
+      survey_no,
+      res_no,
+    } = req.body;
 
     // 임시저장은 '임시저장' 상태로 강제 설정
     const status = "임시저장";
@@ -66,10 +95,13 @@ module.exports.saveDraft = async (req, res) => {
     const params = [
       staff_id,
       ward_no,
+      guardian_id,
       consult_datetime,
       disabled_level,
-      status,
+      consult_status || "진행중",
       content,
+      survey_no,
+      res_no,
     ];
 
     console.log("Executing Query: createConsultationLog (Draft)", params);

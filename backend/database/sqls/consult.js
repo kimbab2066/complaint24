@@ -171,6 +171,15 @@ FROM survey
 WHERE ward_no = ?;
 `;
 
+/**
+ * [상태변경] 예약확정 -> 상담완료
+ */
+const updateReservationToBooked = `
+UPDATE reservation
+SET res_status = '상담완료'
+WHERE res_no = ?
+`;
+
 module.exports = {
   getAvailableSchedules,
   getUpcomingReservations,
@@ -187,4 +196,5 @@ module.exports = {
   createAlarm,
   createConsultationLog,
   getSurveysByWard,
+  updateReservationToBooked,
 };

@@ -80,10 +80,15 @@ const goBackToList = () => {
   <div class="card">
     <!-- 1. 상단 영역: viewMode에 따라 동적으로 헤더 교체 -->
     <template v-if="viewMode === 'list'">
-      <Breadcrumb :home="{ icon: 'pi pi-home', url: '/' }" :model="breadcrumbItems" />
+      <Breadcrumb :home="{ icon: 'pi pi-home', url: '/ud' }" :model="breadcrumbItems" />
       <div class="title-section">
         <h2 class="page-title">{{ currentTabTitle }}</h2>
-        <Button label="메인 페이지로" icon="pi pi-arrow-right" icon-pos="right" />
+        <Button
+          label="메인 페이지로"
+          icon="pi pi-arrow-right"
+          icon-pos="right"
+          @click="router.push('/ud')"
+        />
       </div>
     </template>
     <template v-else>

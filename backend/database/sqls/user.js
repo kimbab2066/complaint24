@@ -7,6 +7,7 @@ SELECT user_id,
        password, 
        user_name,
        email,
+       institution_no,
        role AS user_role
 FROM member
 WHERE user_id = ?`;

@@ -1,5 +1,23 @@
 const db = require("../database/mappers/mapper");
 
+// 오늘의 상담 건수 조회
+exports.getTodayConsultCount = async (req, res) => {
+  try {
+    // 로그인 된 staff_id
+    const staff_id = req.user.id;
+
+    if (!staff_id) {
+      return res.status(401).json({ message: "로그인 정보가 없습니다" });
+    }
+    let result = await db.query("consultCount", [staff_id]);
+    const count = result[0]?.consult_count || 0;
+    res.status(200).json({ consultCount: count });
+  } catch (error) {
+    console.error("상담 건수 조회 오류", error);
+    res.status(500).json({ message: "상담 건수 조회 실패" });
+  }
+};
+
 exports.surveySelect = async (req, res) => {
   console.log("Survey List 조회");
   try {

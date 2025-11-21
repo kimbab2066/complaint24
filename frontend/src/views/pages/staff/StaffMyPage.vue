@@ -38,7 +38,9 @@ onMounted(() => {
     <div class="header-container">
       <div class="header-left">
         <h1 class="page-title">마이페이지</h1>
-        <p class="user-info">{{ staffInfo.user_name }}님({{ staffInfo.institution_name }} 담당자)</p>
+        <p class="user-info">
+          {{ staffInfo.user_name }}님({{ staffInfo.institution_name }} 담당자)
+        </p>
       </div>
       <div class="header-right">
         <Button label="메인 페이지로" icon="pi pi-arrow-left" />

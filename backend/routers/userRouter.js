@@ -231,6 +231,23 @@ router.get("/wards", verifyAccessToken, async (req, res) => {
   }
 });
 
+router.get("/wardlist", async (req, res) => {
+  try {
+    const { guardianId } = req.query; // Get guardianId from query parameters
+
+    if (!guardianId) {
+      return res
+        .status(400)
+        .send({ err: "guardianId query parameter is required." });
+    }
+
+    const wards = await userService.getWardsByGuardianId(guardianId);
+    res.status(200).send({ result: wards });
+  } catch (err) {
+    res.status(500).send({ err: "Failed to get wards: " + err.message });
+  }
+});
+
 // D:\Dev\git\team-project\frontend\src\views  UserMyPage.vue -> UserWardInfoInsert.vue
 router.post("/wards", async (req, res) => {
   try {

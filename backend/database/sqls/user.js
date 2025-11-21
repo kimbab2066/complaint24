@@ -176,6 +176,7 @@ SELECT
 FROM inquiry i
 LEFT JOIN notice n ON i.notice_no = n.notice_no
 WHERE i.inquiry_status = 1`,
+
   inquiryList: `select 
  business_no
 , answer_list

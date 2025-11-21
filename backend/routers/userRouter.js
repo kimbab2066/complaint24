@@ -375,7 +375,7 @@ router.post("/apply-institution", async (req, res) => {
 // Called by: src/views/UserInquiryDetail.vue (for creating survey for wards)
 router.get("/surveys/create", async (req, res) => {
   try {
-    const { guardianId } = req.query; // Get guardianId from query parameters
+    const { guardianId, inquiryNo } = req.query; // Get guardianId from query parameters
 
     if (!guardianId) {
       return res
@@ -383,7 +383,8 @@ router.get("/surveys/create", async (req, res) => {
         .send({ err: "guardianId query parameter is required." });
     }
 
-    const wards = await userService.getWardsByGuardianId(guardianId);
+    const wards = await userService.getAvailableWardsForInquiry(guardianId, inquiryNo);
+    console.log('surveys/create: ', wards);
     res.status(200).send({ result: wards });
   } catch (err) {
     res.status(500).send({ err: "Failed to get wards: " + err.message });

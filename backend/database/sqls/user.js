@@ -311,15 +311,22 @@ const myInfoSqls = {
     SELECT institution_no, institution_name FROM institution
   `,
   findAvailableWardsForInquiry: `
-    SELECT w.name, w.ward_no
+    SELECT w.name
+    , w.ward_no
     FROM ward w
     JOIN member m 
       ON m.user_id = w.guardian_id
     WHERE m.user_id = ?
     AND NOT EXISTS (
-      SELECT 1
-      FROM survey s
-      WHERE s.ward_no = w.ward_no)
+    SELECT 1
+    FROM survey s
+    JOIN survey_result sr 
+      ON sr.survey_no = s.survey_no
+    JOIN inquiry_list il 
+      ON il.business_no = sr.business_no
+    WHERE s.ward_no = w.ward_no
+    AND il.inquiry_no = ?)
+    ORDER BY w.name;
   `,
   updateUser: `
     UPDATE member SET phone = ?, address = ?, email = ? WHERE user_id = ?

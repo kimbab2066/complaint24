@@ -367,8 +367,8 @@ const updateInstitutionStatus = async (institutionNo, data) => {
   return result;
 };
 //
-const getAvailableWardsForInquiry = async (guardianId) => {
-  return await mapper.query("findAvailableWardsForInquiry", guardianId);
+const getAvailableWardsForInquiry = async (guardianId, inquiryNo) => {
+  return await mapper.query("findAvailableWardsForInquiry", [guardianId, inquiryNo]);
 };
 
 module.exports = {
@@ -396,4 +396,5 @@ module.exports = {
   getSupportPlanDetail,
   getInstitutionInfo,
   updateInstitutionStatus,
+  getAvailableWardsForInquiry
 };

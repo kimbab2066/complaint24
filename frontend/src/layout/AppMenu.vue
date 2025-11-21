@@ -178,6 +178,11 @@ const model = ref([
         url: 'https://github.com/primefaces/sakai-vue',
         target: '_blank',
       },
+      {
+        label: '마이 페이지',
+        icon: 'pi pi-fw pi-home',
+        to: '/umy',
+      },
     ],
   },
 ]);

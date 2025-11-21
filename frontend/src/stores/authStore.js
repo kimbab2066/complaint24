@@ -32,13 +32,19 @@ export const useAuthStore = defineStore('auth', {
 
         switch (user.role) {
           case 'USER':
+          case '1a':
             router.push('/ud');
             break;
           case 'STAFF':
+          case '2a':
             router.push('/smy');
             break;
           case 'ADMIN':
+          case '3a':
             router.push('/amy');
+            break;
+          case 'SYS':
+            router.push('/system');
             break;
 
           default:

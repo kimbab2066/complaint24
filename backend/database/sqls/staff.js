@@ -64,17 +64,18 @@ WHERE s.survey_no = 1;
 
 const wardno = `SELECT * FROM survey WHERE survey_no = ?`;
 //지원계획
-const spportinsert = `
+const supportinsert = `
 INSERT INTO support_plan (
- support_plan_goal,
- business_name,
- spend,
- plan,
- file_no,
- priority_no,       
- support_plan_status,
- writer_date        
-) VALUES ( ?, ?, ?, ?, ?, ?, ?, NOW() ) 
+  ward_no,
+  support_plan_goal,
+  plan,
+  business_name,
+  spend,
+  file_no,
+  support_plan_status,
+  staff_name,
+  writer_date
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
 `;
 
 /**
@@ -192,7 +193,7 @@ module.exports = {
   supportPlan,
   wardsearch,
   wardno,
-  spportinsert,
+  supportinsert,
   planitem,
   getAvailableSlots,
   getReservationCounts,

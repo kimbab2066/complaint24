@@ -87,13 +87,20 @@ exports.wardsearch = async (req, res) => {
 
 exports.createSupportPlan = async (req, res) => {
   console.log("승인요청 POST 데이터:", req.body); // Vue 컴포넌트에는 없는 필수 필드에 대한 임시 또는 기본값 설정
-
-  const staff_name = req.body.manager || "담당자_미지정"; // DB에 전송하지 않음
   const priority_no = 1; // 🚨 임시값 1로 고정합니다. (실제 폼에서 입력받는 기능이 없으므로)
 
-  const { support_plan_goal, business_name, spend, plan, file_no } = req.body;
+  const {
+    ward_no,
+    support_plan_goal,
+    plan,
+    business_name,
+    spend,
+    file_no,
+    support_plan_status,
+    staff_name,
+    writer_date,
+  } = req.body;
 
-  const support_plan_status = "승인대기"; // 고정값
   const safe_spend = parseInt(spend.toString().replace(/,/g, "")) || 0;
   const safe_file_no = file_no || null;
 
@@ -105,14 +112,16 @@ exports.createSupportPlan = async (req, res) => {
 
   try {
     // 🔑 쿼리가 요구하는 7개의 파라미터만 정확히 전달
-    await db.query("spportinsert", [
+    await db.query("supportinsert", [
+      ward_no,
       support_plan_goal,
-      business_name,
-      safe_spend,
       plan,
-      safe_file_no,
-      priority_no, // ✅ 추가: priority_no
-      support_plan_status, // writer_date는 쿼리 내에서 NOW()로 처리
+      business_name,
+      spend,
+      file_no,
+      support_plan_status,
+      staff_name,
+      writer_date,
     ]);
 
     console.log("지원 계획 INSERT 성공 (파라미터 7개 사용)");

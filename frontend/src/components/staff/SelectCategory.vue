@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import SurveyDetail from '@/components/SurveyDetail.vue';
+import SupportList from '@/components/staff/SupportList.vue';
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
 import DataTable from 'primevue/datatable';
@@ -19,7 +20,7 @@ const fetchMyPageSurveys = async () => {
   loading.value = true;
   try {
     const response = await axios.get('/api/user/my-page-surveys', {
-      params: { writer: 'test' } // Pass 'test' as a query parameter
+      params: { writer: 'test' }, // Pass 'test' as a query parameter
     });
     surveyList.value = response.data.result;
   } catch (err) {
@@ -57,7 +58,11 @@ const onRowSelect = (event) => {
           <div class="flex flex-col gap-4">
             <!-- Button to open modal -->
             <div class="border-b pb-4 mb-4">
-              <Button label="작성한 조사지 목록 보기" icon="pi pi-list" @click="openSurveyListModal" />
+              <Button
+                label="작성한 조사지 목록 보기"
+                icon="pi pi-list"
+                @click="openSurveyListModal"
+              />
             </div>
 
             <!-- Detail View Area -->
@@ -69,11 +74,8 @@ const onRowSelect = (event) => {
             </div>
           </div>
         </TabPanel>
-        <TabPanel value="1">
-          <div class="p-4">
-            <h3 class="text-xl font-semibold">지원계획서</h3>
-            <p>지원계획서 내용이 여기에 표시됩니다.</p>
-          </div>
+        <TabPanel value="1" class="p-4">
+          <SupportList />
         </TabPanel>
         <TabPanel value="2">
           <div class="p-4">

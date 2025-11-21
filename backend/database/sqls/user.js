@@ -288,13 +288,14 @@ const myInfoSqls = {
       m.email,
       m.phone,
       m.role,
+      m.status,
       i.institution_no,
       i.institution_name,
-      i.status,
+      i.status as institution_status,
       i.closed_at
     FROM member m
     LEFT JOIN institution i ON m.institution_no = i.institution_no
-    WHERE m.user_id = ? AND m.role IN ('ADMIN', 'STAFF', 'SYS')
+    WHERE m.user_id = ?
   `,
   applyToInstitution: `
     UPDATE member SET institution_no = ?, status = 'READY' WHERE user_id = ?

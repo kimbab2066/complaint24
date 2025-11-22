@@ -86,4 +86,10 @@ export default [
     component: () => import('@/components/UserSurveyDetail.vue'),
     props: true,
   },
+  {
+    path: '/user/support-result/:support_result_no',
+    name: 'user-support-result-detail',
+    component: () => import('@/views/UserSupportResultDetail.vue'),
+    props: true,
+  },
 ];

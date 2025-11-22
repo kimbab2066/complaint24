@@ -410,11 +410,9 @@ router.get("/survey-detail/:survey_no", async (req, res) => {
 
 // Called by: src/views/UserSupportPlanDetail.vue
 router.get("/support-plan/:support_plan_no", async (req, res) => {
-  // const { inquiry_no, ward_no } = req.params;
   try {
     const { support_plan_no } = req.params;
-    const { ward_no } = req.query;
-    const supportPlan = await userService.getSupportPlanDetail({ support_plan_no, ward_no });
+    const supportPlan = await userService.getSupportPlanDetail(support_plan_no);
     if (!supportPlan) {
       return res.status(404).send({ message: "Support plan not found." });
     }
@@ -423,6 +421,21 @@ router.get("/support-plan/:support_plan_no", async (req, res) => {
     return res
       .status(500)
       .send({ err: "Failed to get support plan detail: " + err.message });
+  }
+});
+
+router.get("/support-result/:support_result_no", async (req, res) => {
+  try {
+    const { support_result_no } = req.params;
+    const resultDetail = await userService.getSupportResultDetail(support_result_no);
+    if (!resultDetail) {
+      return res.status(404).send({ message: "Support result not found." });
+    }
+    res.status(200).send({ result: resultDetail });
+  } catch (err) {
+    return res
+      .status(500)
+      .send({ err: "Failed to get support result detail: " + err.message });
   }
 });
 

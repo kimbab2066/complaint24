@@ -339,11 +339,9 @@ const changePassword = async (userId, passwordData) => {
 };
 
 // 프론트엔드 호출처: frontend/src/views/UserSupportPlanDetail.vue
-const getSupportPlanDetail = async (reqData) => {
-  const { support_plan_no, ward_no } = reqData;
+const getSupportPlanDetail = async (support_plan_no) => {
   const result = await mapper.query("findSupportPlanDetailBySupportPlanNo", [
     support_plan_no,
-    ward_no,
   ]);
   if (!Array.isArray(result) || result.length === 0) {
     return null;
@@ -390,6 +388,14 @@ const getSurveyDetail = async (surveyNo) => {
   };
 };
 
+const getSupportResultDetail = async (resultNo) => {
+  const result = await mapper.query("findSupportResultDetailByResultNo", [resultNo]);
+  if (!Array.isArray(result) || result.length === 0) {
+    return null;
+  }
+  return result[0];
+};
+
 module.exports = {
   getExpiringNotices,
   getSurveyToUserWard,
@@ -416,5 +422,6 @@ module.exports = {
   getSurveyDetail,
   getInstitutionInfo,
   updateInstitutionStatus,
+  getSupportResultDetail,
   getAvailableWardsForInquiry
 };

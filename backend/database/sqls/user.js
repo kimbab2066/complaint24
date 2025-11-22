@@ -239,7 +239,6 @@ FROM
     support_plan sp
 WHERE
     sp.support_plan_no = ?
-    AND sp.ward_no = ?
 `,
 
   findSurveyDataBySurveyNo: `
@@ -281,6 +280,17 @@ FROM survey_result sr
 JOIN inquiry_list il ON sr.business_no = il.business_no
 WHERE sr.survey_no = ?
 ORDER BY il.priority, il.business_no
+`,
+
+  findSupportResultDetailByResultNo: `
+SELECT
+    support_title,
+    support_content,
+    support_reject_reason
+FROM
+    support_result
+WHERE
+    support_result_no = ?
 `,
 };
 

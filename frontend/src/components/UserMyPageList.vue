@@ -68,7 +68,12 @@ const showUserSupportPlan = (project) => {
 };
 
 const showUserSupportResult = (project) => {
-  alert('결과확인 기능은 현재 비활성화되어 있습니다.');
+  if (project.support_result_no) {
+    router.push({
+      name: 'user-support-result-detail',
+      params: { support_result_no: project.support_result_no },
+    });
+  }
 };
 
 const getDisplayStatus = (item) => {

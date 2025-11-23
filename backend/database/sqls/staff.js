@@ -59,7 +59,7 @@ SELECT
     w.ward_no AS '피보호자번호'
 FROM survey s
 INNER JOIN ward w ON s.ward_no = w.ward_no
-WHERE s.survey_no = 1;
+WHERE s.survey_no = ?;
 `;
 
 const wardno = `SELECT * FROM survey WHERE survey_no = ?`;

@@ -190,11 +190,7 @@ export function RegistSurveyForm() {
       },
       { immediate: true }
     );
-    const surveyData = {
-      ...basicInfo.value,
-      questionList: questionList.value,
-      writer: '시스템관리자',
-    };
+    const surveyData = { ...basicInfo.value, questionList: questionList.value, writer: '관리자' };
 
     try {
       // 3. 백엔드 POST API 호출

@@ -25,11 +25,8 @@ exports.getStaffPlanItems = async (req, res) => {
     res
       .status(500)
       .send({ message: "담당자 승인 조회 중 오류가 발생했습니다." });
-<<<<<<< HEAD
-=======
   }
 };
->>>>>>> e032e9b0439b4d3d31ef38d8a480348c3147e2df
 // 오늘의 상담 건수 조회
 exports.getTodayConsultCount = async (req, res) => {
   try {
@@ -573,4 +570,3 @@ exports.cancelStaffReservation = async (req, res) => {
     res.status(500).send({ message: "예약 취소 중 오류가 발생했습니다." });
   }
 };
-

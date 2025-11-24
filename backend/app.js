@@ -16,11 +16,6 @@ app.use((req, res, next) => {
   next();
 });
 
-//3.routing 영역
-app.get("/", (req, res) => {
-  res.send("Welcome!!");
-});
-
 // [수정] 구체적인 라우터를 먼저 등록
 console.log("[app.js] 2. Loading authRouter...");
 const authRouter = require("./routers/authRouter.js");
@@ -72,6 +67,13 @@ app.listen(port, () => {
 });
 
 // vue.js build 이후
+let apiPath = "";
+if (process.argv.indexOf("prod") > -1) {
+  apiPath = "/api";
+}
+app.get(`${apiPath}/board`, function (req, res) {
+  res.send({ title: "노드 API 서버 업데이트" });
+});
 
 const path = require("path");
 const publicPath = path.join(__dirname, "public");

@@ -16,8 +16,8 @@ const localForm = ref({
   staff_name: '',
   business_name: '',
   spend: 0,
-  created_at: '',
-  writer_date: '',
+  support_created_at: '',
+  support_ended_at: '',
   priority_no: '',
   plan: '',
   file_names: '',
@@ -35,8 +35,8 @@ watch(
         staff_name: '',
         business_name: '',
         spend: 0,
-        created_at: '',
-        writer_date: '',
+        support_created_at: '',
+        support_ended_at: '',
         priority_no: '',
         plan: '',
         file_names: '',
@@ -106,19 +106,13 @@ const formatAmount = (amount) => {
       <!-- 작성일 & 요청일 -->
       <div class="flex gap-4">
         <div class="w-1/2">
-          <label class="font-semibold text-gray-700">작성일</label>
-          <InputText v-model="localForm.created_at" readonly class="w-full bg-gray-100" />
+          <label class="font-semibold text-gray-700">시작일</label>
+          <InputText v-model="localForm.support_started_at" readonly class="w-full bg-gray-100" />
         </div>
         <div class="w-1/2">
-          <label class="font-semibold text-gray-700">요청일</label>
-          <InputText v-model="localForm.writer_date" readonly class="w-full bg-gray-100" />
+          <label class="font-semibold text-gray-700">종료일</label>
+          <InputText v-model="localForm.support_ended_at" readonly class="w-full bg-gray-100" />
         </div>
-      </div>
-
-      <!-- 현재 상태 -->
-      <div>
-        <label class="font-semibold text-gray-700">현재상태</label>
-        <InputText v-model="localForm.support_plan_status" readonly class="w-full bg-gray-100" />
       </div>
 
       <!-- 내용 -->

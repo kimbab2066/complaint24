@@ -151,7 +151,8 @@ SELECT
   support_title,
   support_spend,
   support_started_at,
-  support_ended_at
+  support_ended_at,
+  support_content
 FROM support_result
 ORDER BY support_started_at DESC
 `;

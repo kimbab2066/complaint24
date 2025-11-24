@@ -10,13 +10,6 @@ const props = defineProps({
 
 const emit = defineEmits(['toggle-detail']);
 
-// 우선순위 색상
-const priorityColor = computed(() => {
-  if (props.item.priority === '긴급') return 'bg-red-500';
-  if (props.item.priority === '중점') return 'bg-yellow-500';
-  return 'bg-green-500'; // 준비
-});
-
 // 상세 토글
 const handleButtonClick = () => {
   emit('toggle-detail', props.item.support_plan_no);

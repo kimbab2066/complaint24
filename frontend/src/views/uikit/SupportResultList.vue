@@ -21,31 +21,36 @@ const handleToggleDetail = (supportResultNo) => {
 // 날짜 포맷
 const formatDate = (date) => {
   if (!date) return '-';
-  return date.split('T')[0];
+  try {
+    return date.split('T')[0];
+  } catch (err) {
+    console.warn('날짜 포맷 실패:', date);
+    return '-';
+  }
 };
 
-// DB에서 support-result 가져오기 (두 번째 API)
+// DB에서 support-result 가져오기
 onBeforeMount(async () => {
   loading.value = true;
   try {
     const res = await axios.get('/api/staff/support-result');
+    console.log('API 응답 확인:', res.data); // 🔥 응답 구조 확인
     const list = Array.isArray(res.data) ? res.data : [res.data];
 
     surveys.value = list.map((item) => ({
-      support_plan_no: item.support_result_no, // 리스트 키
+      support_plan_no: item.support_result_no,
       title: item.support_title,
       spend: item.support_spend,
-      startedAt: formatDate(item.support_started_at),
-      endedAt: formatDate(item.support_ended_at),
-      // SupportPlanItem 용 커스텀 필드
+
+      // 상세 보기용 데이터
       support_plan_goal: item.support_title,
       staff_name: item.staff_name || '미지정',
-      priority: '-',
       business_name: item.business_name || '-',
-      writer_date: formatDate(item.support_started_at),
+      support_started_at: item.support_started_at ? formatDate(item.support_started_at) : '-',
+      support_ended_at: item.support_ended_at ? formatDate(item.support_ended_at) : '-',
       support_plan_status: item.status || '',
-      plan: item.support_content,
-      file_names: '',
+      plan: item.support_content || '',
+      file_names: item.file_names || '',
     }));
   } catch (err) {
     console.error('지원 결과 조회 오류:', err);

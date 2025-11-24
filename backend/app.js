@@ -70,3 +70,17 @@ app.listen(port, () => {
   console.log("Server Start");
   console.log(`http://localhost:${port}`);
 });
+
+// vue.js build 이후
+
+const path = require("path");
+const publicPath = path.join(__dirname, "public");
+app.use(express.static(publicPath));
+
+app.get("/", function (req, res, next) {
+  res.sendFile(path.join(__dirname, "./public", "index.html"));
+});
+
+app.use((req, res) => {
+  res.status(404).sendFile(path.join(__dirname, "./public", "index.html"));
+});

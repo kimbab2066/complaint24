@@ -18,6 +18,7 @@ const localForm = ref({
   spend: 0,
   created_at: '',
   writer_date: '',
+  priority_no: '',
   plan: '',
   file_names: '',
   support_plan_status: '',
@@ -36,6 +37,7 @@ watch(
         spend: 0,
         created_at: '',
         writer_date: '',
+        priority_no: '',
         plan: '',
         file_names: '',
         support_plan_status: '', // 초기값
@@ -53,21 +55,21 @@ const formatAmount = (amount) => {
 };
 
 // 승인 처리
-const approvePlan = async () => {
-  if (!localForm.value.support_plan_no) return;
+// const approvePlan = async () => {
+//   if (!localForm.value.support_plan_no) return;
 
-  try {
-    const res = await axios.post(
-      `/api/staff/support-plan/SupportPlanDetail/${localForm.value.support_plan_no}`
-    );
-    alert(res.data.message || '승인 완료');
-    // 승인 버튼 누르면 바로 상태 업데이트
-    localForm.value.support_plan_status = '승인';
-  } catch (err) {
-    console.error(err);
-    alert('승인 중 오류 발생');
-  }
-};
+//   try {
+//     const res = await axios.post(
+//       `/api/staff/support-plan/SupportPlanDetail/${localForm.value.support_plan_no}`
+//     );
+//     alert(res.data.message || '승인 완료');
+//     // 승인 버튼 누르면 바로 상태 업데이트
+//     localForm.value.support_plan_status = '승인';
+//   } catch (err) {
+//     console.error(err);
+//     alert('승인 중 오류 발생');
+//   }
+// };
 </script>
 
 <template>

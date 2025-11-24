@@ -570,3 +570,44 @@ exports.cancelStaffReservation = async (req, res) => {
     res.status(500).send({ message: "예약 취소 중 오류가 발생했습니다." });
   }
 };
+
+exports.getSurveysByWard = async (req, res) => {
+  const { surveyNo } = req.params;
+  try {
+    // 1. surveyNo로 ward_no 조회
+    const wardResult = await db.query("findWardNoBySurveyNo", [surveyNo]);
+    if (wardResult.length === 0) {
+      return res.status(404).send({ message: "Survey not found." });
+    }
+    const wardNo = wardResult[0].ward_no;
+
+    // 2. ward_no로 survey 목록 조회
+    const surveyList = await db.query("findSurveysByWardNo", [wardNo]);
+    res.status(200).send({ result: surveyList });
+  } catch (error) {
+    console.error("Error getting surveys by ward:", error);
+    res.status(500).send({ message: "Error fetching survey list." });
+  }
+};
+
+// wardId로 피보호자 상세 정보 조회
+exports.getWardInfo = async (req, res) => {
+  const { wardId } = req.params;
+  console.log(`getWardInfo 조회: wardId=${wardId}`);
+
+  if (!wardId) {
+    return res.status(400).send({ message: "피보호자 ID가 필요합니다." });
+  }
+
+  try {
+    const result = await db.query("getWardDetail", [wardId]);
+    if (result && result.length > 0) {
+      res.status(200).json(result[0]); // 단일 객체 반환
+    } else {
+      res.status(404).send({ message: "해당 피보호자를 찾을 수 없습니다." });
+    }
+  } catch (error) {
+    console.error("getWardInfo DB 쿼리 오류:", error);
+    res.status(500).send({ message: "피보호자 정보 조회 중 오류 발생" });
+  }
+};

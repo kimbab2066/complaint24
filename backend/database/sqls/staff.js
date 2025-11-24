@@ -43,7 +43,7 @@ const supportPlan = `
   FROM support_plan
   ORDER BY created_at DESC;
 `;
-//피보호자정보조회
+
 const wardsearch = `
 SELECT
     w.name AS '이름',
@@ -57,12 +57,9 @@ SELECT
     w.disabled_level AS '장애유형',
     w.address AS '주소',
     w.ward_no AS '피보호자번호'
-FROM
-    survey s
-INNER JOIN
-    ward w ON s.ward_no = w.ward_no
-WHERE
-    s.survey_no = ?;
+FROM survey s
+INNER JOIN ward w ON s.ward_no = w.ward_no
+WHERE s.survey_no = ?;
 `;
 
 const wardno = `SELECT * FROM survey WHERE survey_no = ?`;
@@ -212,6 +209,31 @@ WHERE support_plan_no = ?
 const consultCount = `SELECT COUNT(*) AS today_count FROM consult
 WHERE staff_id = ? AND consult_status = '진행중'`;
 
+const findWardNoBySurveyNo = `
+SELECT ward_no FROM survey WHERE survey_no = ?
+`;
+
+const findSurveysByWardNo = `
+SELECT survey_no, created_at, business_name FROM survey WHERE ward_no = ? ORDER BY created_at DESC
+`;
+
+const getWardDetail = `
+SELECT
+    name AS '이름',
+    age AS '나이',
+    NULL AS '생년월일',
+    CASE
+        WHEN sex = 'MALE' THEN '남'
+        WHEN sex = 'FEMALE' THEN '여'
+        ELSE sex
+    END AS '성별',
+    disabled_level AS '장애유형',
+    address AS '주소',
+    ward_no AS '피보호자번호'
+FROM ward
+WHERE ward_no = ?;
+`;
+
 module.exports = {
   surveySelect,
   surveyWardJoinSelect,
@@ -230,4 +252,8 @@ module.exports = {
   updateplanstatus,
   Staffplanitem,
   consultCount,
+  findWardNoBySurveyNo,
+  findSurveysByWardNo,
+  getWardDetail, // 새로 추가
 };
+

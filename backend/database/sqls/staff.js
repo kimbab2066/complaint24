@@ -204,9 +204,12 @@ SET support_plan_status = '승인',
 WHERE support_plan_no = ?
 `;
 
-// 본인의 상담 일정 개수
-const consultCount = `SELECT COUNT(*) AS today_count FROM consult
-WHERE staff_id = ? AND consult_status = '진행중'`;
+// 오늘의 상담 일정 개수
+const reservationCount = `SELECT COUNT(*) AS total_count FROM available_time WHERE staff_id = ? AND status = '예약'`;
+
+// 신규 예약 신청 개수
+
+// 미작성 상담일지 개수
 
 module.exports = {
   surveySelect,
@@ -225,5 +228,5 @@ module.exports = {
   supportresultlistinfo,
   updateplanstatus,
   Staffplanitem,
-  consultCount,
+  reservationCount,
 };

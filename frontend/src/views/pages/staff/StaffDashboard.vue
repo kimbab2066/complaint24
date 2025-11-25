@@ -8,14 +8,26 @@ import Tag from 'primevue/tag';
 import { staffReservationApi } from '@/api/api.js';
 import { useToast } from 'primevue/usetoast';
 import { useAuthStore } from '@/stores/authStore'; // authStore 임포트
+import axios from 'axios';
 
 const router = useRouter();
 const toast = useToast();
 const authStore = useAuthStore(); // authStore 인스턴스 생성
 
 // --- 상태 변수 ---
-const reservations = ref([]);
+const reservations = ref();
 const isLoading = ref(true);
+
+// 오늘의 상담일정 개수
+const getTodayConsult = async () => {
+  try {
+    const response = await axios.get('/api/staff/todays-count');
+    const data = await response.data;
+    reservations.value = data.total_count;
+  } catch (error) {
+    console.error('오늘 상담 개수 오류', error);
+  }
+};
 
 // [수정] staffName을 authStore에서 가져오는 computed 속성으로 변경
 const staffName = computed(() => authStore.user?.name || '담당자');
@@ -23,12 +35,14 @@ const staffName = computed(() => authStore.user?.name || '담당자');
 // --- API 호출 ---
 onMounted(() => {
   fetchDashboardData();
+  stats;
+  getTodayConsult();
 });
 
-async function fetchDashboardData() {
+function fetchDashboardData() {
   isLoading.value = true;
   try {
-    const response = await staffReservationApi.getReservations();
+    const response = staffReservationApi.getReservations();
     reservations.value = response.data;
     console.log('Fetched Reservations Data:', JSON.stringify(reservations.value, null, 2));
   } catch (error) {
@@ -135,7 +149,7 @@ const navigateTo = (routeName) => {
           <template #title>오늘의 상담 일정</template>
           <template #content>
             <div class="stat-value">
-              <span class="count-blue">{{ stats.today }}</span
+              <span class="count-blue">{{ getTodayConsult }}</span
               >건
             </div>
           </template>

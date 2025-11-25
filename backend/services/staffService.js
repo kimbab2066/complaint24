@@ -25,22 +25,19 @@ exports.getStaffPlanItems = async (req, res) => {
     res
       .status(500)
       .send({ message: "담당자 승인 조회 중 오류가 발생했습니다." });
-// 오늘의 상담 건수 조회
-exports.getTodayConsultCount = async (req, res) => {
-  try {
-    // 로그인 된 staff_id
-    const staff_id = req.user.id;
-
-    if (!staff_id) {
-      return res.status(401).json({ message: "로그인 정보가 없습니다" });
-    }
-    let result = await db.query("consultCount", [staff_id]);
-    const count = result[0]?.consult_count || 0;
-    res.status(200).json({ consultCount: count });
-  } catch (error) {
-    console.error("상담 건수 조회 오류", error);
-    res.status(500).json({ message: "상담 건수 조회 실패" });
   }
+};
+
+// 오늘의 상담 건수 조회
+exports.getReservationCount = async () => {
+  const reservationCount = await db.query("reservationCount");
+
+  let total_count = 0;
+  if (reservationCount && reservationCount.count.length > 0) {
+    total_count = reservationCount[0].total_count;
+  }
+  return { total_count: total_count };
+  console.log(total_count);
 };
 
 exports.surveySelect = async (req, res) => {
@@ -549,10 +546,7 @@ exports.cancelStaffReservation = async (req, res) => {
   }
 
   try {
-    const result = await db.query("cancelStaffReservation", [
-      at_no,
-      staff_id,
-    ]);
+    const result = await db.query("cancelStaffReservation", [at_no, staff_id]);
 
     if (result.affectedRows === 0) {
       // 본인 스케줄이 아니거나, '예약' 상태가 아님
@@ -571,4 +565,3 @@ exports.cancelStaffReservation = async (req, res) => {
     res.status(500).send({ message: "예약 취소 중 오류가 발생했습니다." });
   }
 };
-

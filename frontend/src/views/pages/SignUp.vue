@@ -117,7 +117,7 @@ const handleSignUp = async () => {
 
 // 이전 페이지로 이동
 const goToLogin = () => {
-  router.back();
+  router.push({ name: 'login' });
 };
 
 // 우편번호 검색 함수 (모달 열기)

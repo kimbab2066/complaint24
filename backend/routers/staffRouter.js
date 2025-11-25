@@ -10,12 +10,6 @@ router.get("/", staffService.surveySelect);
 // wardsearch
 router.get("/wardsearch", staffService.wardsearch);
 
-router.get(
-  "/consults/today",
-  verifyAccessToken,
-  staffService.getTodayConsultCount
-);
-
 // 1. 담당자 스케줄 조회 (캘린더 로드 시)
 // (경로: /api/staff/schedules)
 router.get("/schedules", verifyAccessToken, staffService.getSchedules);
@@ -56,6 +50,9 @@ router.post(
 // 해당 javascript 파일의 마지막 코드, 모듈화
 // 위에 선언한 기능(변수, 함수 등)들 중 외부로 노출할 대상을 설정
 // => 다른 파일에서 require()을 통해 가져옴
+
+// 오늘의 상담 일정 개수
+router.get("/todays-count", staffService.getReservationCount);
 
 //지원계획신청 데이터불러오기
 router.get("/support-plan", staffService.supportPlan);

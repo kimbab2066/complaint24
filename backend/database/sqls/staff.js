@@ -285,10 +285,6 @@ WHERE
 ORDER BY 
   sp.support_plan_no DESC`;
 
-
-
-
-
 module.exports = {
   surveySelect,
   surveyWardJoinSelect,
@@ -306,16 +302,11 @@ module.exports = {
   supportresultlistinfo,
   updateplanstatus,
   Staffplanitem,
-<<<<<<< HEAD
   reservationCount,
   newReservationCount,
-=======
-  consultCount,
   findWardNoBySurveyNo,
   findSurveysByWardNo,
   getWardDetail, // 새로 추가
   supportPlanByWardNoSurveyNo,
-  supportResultByWardNoSurveyNo,  
->>>>>>> dfd982de616df9fb52597ce9f6b5321e93cfb806
+  supportResultByWardNoSurveyNo,
 };
-

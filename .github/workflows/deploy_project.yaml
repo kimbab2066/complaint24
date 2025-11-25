@@ -39,6 +39,6 @@ jobs:
             cd ~/team-project
             git pull origin main
             npm install --prefix backend
-            pm2 restart backend || pm2 start backend/index.js --name "app"
+            pm2 restart backend || pm2 start backend/app.js --name "app"
             pm2 save
           EOF

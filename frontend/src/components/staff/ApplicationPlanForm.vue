@@ -1,62 +1,70 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import InputText from 'primevue/inputtext';
 import Textarea from 'primevue/textarea';
 import Select from 'primevue/select';
 import Button from 'primevue/button';
 import axios from 'axios';
 import { useAuthStore } from '@/stores/authStore';
-const authStore = useAuthStore(); // authStore 인스턴스 생성
+const authStore = useAuthStore();
 const staffName = computed(() => authStore.user?.name);
 
 // ⭐ 부모로부터 받은 wardId (ward_no)
 const props = defineProps({
   wardId: {
     type: [String, Number],
-    required: false, // optional로 변경
+    required: false,
   },
 });
 
-// 전역 고유 id 카운터
+// 폼 생성
 let formId = 0;
-
-// 폼 초기화 함수
 const createForm = () => ({
   id: formId++,
   writer: '',
-  staff: '', // 담당자
-  dropdownItem: null, // 사업선택
-  amount: '', // 금액
-  plan: '', // 내용
-  selectedFiles: [], // pdf파일
-  priority: null, // 우선순위
+  staff: '',
+  dropdownItem: null,
+  amount: '',
+  plan: '',
+  selectedFiles: [],
+  priority: null,
 });
 
-// 폼 배열
 const forms = ref([createForm()]);
 
-// 드롭다운 항목
-const dropdownItems = ref([
-  { name: '1번 사업', code: 'Option 1' },
-  { name: '2번 사업', code: 'Option 2' },
-  { name: '3번 사업', code: 'Option 3' },
-  { name: '4번 사업', code: 'Option 4' },
-  { name: '5번 사업', code: 'Option 5' },
-  { name: '6번 사업', code: 'Option 6' },
-]);
+// ⭐ 사업 목록 (notice)
+const dropdownItems = ref([]);
 
-// 금액 3자리 콤마
+const fetchBusinessNames = async () => {
+  try {
+    const res = await axios.get('/api/staff/ApplicationPlanForm'); // ✅ URL 수정
+    const list = res.data?.result || [];
+
+    dropdownItems.value = list
+      .filter((n) => n.business_name)
+      .map((n) => ({
+        name: n.business_name,
+        code: n.notice_no,
+      }));
+
+    console.log('사업명 드롭다운 로딩 완료:', dropdownItems.value);
+  } catch (err) {
+    console.error('사업명 불러오기 실패:', err);
+  }
+};
+
+// 금액 입력 포맷팅
 const formatAmount = (form) => {
   const onlyNums = form.amount.replace(/[^0-9]/g, '');
   form.amount = onlyNums ? Number(onlyNums).toLocaleString() : '';
 };
 
-// 파일 선택
+// 파일 선택 (현재 미사용)
 const handleFiles = (event, form) => {
   form.selectedFiles = Array.from(event.target.files);
 };
 
-// ⭐ 승인요청 (ward_no 포함)
+// ⭐ 승인요청 API
 const requestApproval = async (form) => {
   if (!form.writer || !form.dropdownItem || !form.plan) {
     alert('필수 항목(목표, 사업, 내용)을 모두 입력해주세요.');
@@ -64,20 +72,22 @@ const requestApproval = async (form) => {
   }
 
   if (!props.wardId) {
-    alert('피보호자 정보가 아직 준비되지 않았습니다. 잠시 후 다시 시도해주세요.');
+    alert('피보호자 정보가 아직 준비되지 않았습니다.');
     return;
   }
 
   try {
     const payload = {
-      ward_no: Number(props.wardId), // 필수
-      support_plan_goal: form.writer, // 폼 입력
-      plan: form.plan, // 폼 입력
-      business_name: form.dropdownItem?.name || null, // 선택값
-      spend: parseInt(form.amount.replace(/,/g, '')) || 0, // 입력
-      file_no: '1',
-      support_plan_status: '승인대기', // 고정
+      ward_no: Number(props.wardId),
+      notice_no: form.dropdownItem?.code,
+      support_plan_goal: form.writer,
+      plan: form.plan,
+      business_name: form.dropdownItem?.name || null,
+      spend: parseInt(form.amount.replace(/,/g, '')) || 0,
+      file_no: null, // 필요 시 변경
+      support_plan_status: '승인대기',
       staff_name: staffName.value,
+      priority_no: form.priority || 1, // ⭐ DB에 필요한 priority_no 추가
     };
 
     console.log('payload:', payload);
@@ -85,7 +95,7 @@ const requestApproval = async (form) => {
     await axios.post('/api/staff/support-plan', payload);
 
     alert(`폼 ${form.id} 승인요청 완료!`);
-    forms.value = [createForm()];
+    forms.value = [createForm()]; // 초기화
   } catch (err) {
     console.error('승인요청 오류:', err.response?.data || err);
     alert('승인요청 실패. 서버 로그를 확인하세요.');
@@ -101,6 +111,10 @@ const deleteForm = (id) => {
 };
 
 const addForm = () => forms.value.push(createForm());
+
+onMounted(() => {
+  fetchBusinessNames();
+});
 </script>
 
 <template>
@@ -108,6 +122,7 @@ const addForm = () => forms.value.push(createForm());
     <h1 class="text-3xl font-extrabold mb-8 text-gray-800 border-b-4 border-indigo-300 pb-2">
       📝 지원 계획 작성
     </h1>
+
     <Fluid>
       <div v-for="form in forms" :key="form.id" class="flex mt-8">
         <div class="card flex flex-col gap-4 w-full border p-4 rounded-md shadow-sm">
@@ -130,6 +145,7 @@ const addForm = () => forms.value.push(createForm());
                 placeholder="Select One"
                 class="w-full"
               />
+
               <label>예상지원금액</label>
               <InputText
                 v-model="form.amount"

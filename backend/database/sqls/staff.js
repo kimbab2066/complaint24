@@ -67,6 +67,7 @@ const wardno = `SELECT * FROM survey WHERE survey_no = ?`;
 const supportinsert = `
 INSERT INTO support_plan (
   ward_no,
+  notice_no,
   support_plan_goal,
   plan,
   business_name,
@@ -76,7 +77,7 @@ INSERT INTO support_plan (
   staff_name,
   writer_date,
   priority_no
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)
 `;
 
 /**
@@ -270,6 +271,15 @@ FROM support_plan
 WHERE ward_no = ?
 ORDER BY support_plan_no DESC`;
 
+const selectnotice = `
+SELECT 
+    notice_no,
+    business_name
+FROM notice
+WHERE business_name IS NOT NULL
+ORDER BY notice_no DESC
+`;
+
 module.exports = {
   surveySelect,
   surveyWardJoinSelect,
@@ -292,8 +302,9 @@ module.exports = {
   notCompleteConsultCount,
   findWardNoBySurveyNo,
   findSurveysByWardNo,
-  getWardDetail, // 새로 추가
+  getWardDetail,
   supportPlanByWardNoSurveyNo,
   supportResultByWardNoSurveyNo,
   notCompleteConsultCount,
+  selectnotice,
 };

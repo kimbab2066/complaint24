@@ -175,6 +175,7 @@ exports.createSupportPlan = async (req, res) => {
 
   const {
     ward_no,
+    notice_no,
     support_plan_goal,
     plan,
     business_name,
@@ -198,6 +199,7 @@ exports.createSupportPlan = async (req, res) => {
     // 🔑 쿼리가 요구하는 7개의 파라미터만 정확히 전달
     await db.query("supportinsert", [
       ward_no,
+      notice_no,
       support_plan_goal,
       plan,
       business_name,
@@ -316,6 +318,22 @@ exports.approveSupportPlan = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "승인 중 오류 발생" });
+  }
+};
+
+// 사업 목록 조회
+exports.getNoticeList = async (req, res) => {
+  try {
+    // db.query에 변수로 SQL 전달
+    const rows = await db.query("selectnotice"); // MySQL2 기준
+    console.log(
+      "================================================================",
+      rows
+    );
+    res.status(200).json({ result: rows });
+  } catch (error) {
+    console.error("사업 목록 조회 오류:", error);
+    res.status(500).json({ message: "사업 목록 조회 실패" });
   }
 };
 // 6. planItemList: support_plan 테이블에서 상세 항목 조회

@@ -7,6 +7,7 @@ const staffService = require("../services/staffService.js");
 const { verifyAccessToken } = require("../middleware/authMiddleware");
 
 router.get("/", staffService.surveySelect);
+
 // wardsearch
 router.get("/wardsearch", staffService.wardsearch);
 
@@ -107,16 +108,19 @@ router.get("/survey-select", staffService.surveySelect);
 // wardId로 피보ho자 상세 정보 조회
 router.get("/ward-info/:wardId", staffService.getWardInfo);
 
-// 특정 설문 상세 조회
-router.get("/:surveyNo", staffService.getSurveyDetail);
-
 // surveyNo로 ward_no를 찾고, 해당 ward_no에 속한 모든 survey 목록 반환
 router.get("/surveys-by-ward/:surveyNo", staffService.getSurveysByWard);
+
+// 사업 조회
+router.get("/ApplicationPlanForm", staffService.getNoticeList);
 
 //상태를 승인으로 변경
 router.post(
   "/support-plan/SupportPlanDetail/:support_plan_no",
   staffService.approveSupportPlan
 );
+
+// 특정 설문 상세 조회
+router.get("/:surveyNo", staffService.getSurveyDetail);
 
 module.exports = router;

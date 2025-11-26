@@ -37,7 +37,7 @@ export const useAuthStore = defineStore('auth', {
             break;
           case 'STAFF':
           case '2a':
-            router.push('/smy');
+            router.push('/staff/home');
             break;
           case 'ADMIN':
           case '3a':

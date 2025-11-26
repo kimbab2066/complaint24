@@ -17,8 +17,8 @@ export function RegistSurveyForm() {
   const allNotices = ref([]);
   const relatedNoticeContent = ref('');
   const statuses = ref([
-    { name: '상태1', code: 0 },
-    { name: '상태2', code: 1 },
+    { name: '미게시', code: 0 },
+    { name: '게시중', code: 1 },
   ]);
   const responses = ref([
     { name: '서술형', code: 1 },

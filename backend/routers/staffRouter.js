@@ -123,4 +123,6 @@ router.get("/:surveyNo", staffService.getSurveyDetail);
 // wardId로 피보ho자 상세 정보 조회
 router.get("/ward-info/:wardId", staffService.getWardInfo);
 
+router.get("/survey/:wardId", staffService.getApprovedBusinessNames);
+
 module.exports = router;

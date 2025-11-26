@@ -140,9 +140,10 @@ INSERT INTO support_result (
     support_title,
     support_content,
     support_spend,
+    support_plan_no,
     support_started_at,
     support_ended_at
-) VALUES (?, ?, ?, ?, ?, ?)
+) VALUES (?, ?, ?, ?, ?, ?, ?)
 `;
 
 //지원결과보고서 조회
@@ -244,6 +245,7 @@ Join member m
 on ward.guardian_id = m.user_id
 WHERE ward_no = ?
 `;
+
 const supportResultByWardNoSurveyNo = `
 SELECT
   support_result_no,
@@ -283,6 +285,15 @@ WHERE business_name IS NOT NULL
 ORDER BY notice_no DESC
 `;
 
+const selectresultnotice = `
+SELECT DISTINCT
+    business_name,
+    notice_no,
+    support_plan_no
+FROM support_plan
+WHERE support_plan_status = '승인' and ward_no = ?
+`;
+
 module.exports = {
   surveySelect,
   surveyWardJoinSelect,
@@ -310,4 +321,5 @@ module.exports = {
   supportResultByWardNoSurveyNo,
   notCompleteConsultCount,
   selectnotice,
+  selectresultnotice,
 };

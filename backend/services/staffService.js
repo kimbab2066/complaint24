@@ -225,6 +225,7 @@ exports.createSupportResult = async (req, res) => {
       support_title,
       support_content,
       support_spend,
+      support_plan_no,
       support_started_at,
       support_ended_at,
     } = req.body;
@@ -248,6 +249,7 @@ exports.createSupportResult = async (req, res) => {
       support_title,
       support_content || null,
       Number(String(support_spend || 0).replace(/[^0-9]/g, "")),
+      support_plan_no,
       formatDate(support_started_at),
       formatDate(support_ended_at),
     ];
@@ -715,5 +717,16 @@ exports.supportResultByWardSurveyNo = async (req, res) => {
   } catch (err) {
     console.error("지원결과 조회 오류:", err);
     res.status(500).json({ error: "지원결과 조회 실패" });
+  }
+};
+
+exports.getApprovedBusinessNames = async (req, res) => {
+  try {
+    const rows = await db.query("selectresultnotice", [req.params.wardId]);
+    console.log(rows);
+    res.send(rows);
+  } catch (err) {
+    console.error("지원사업명 조회 실패:", err);
+    throw err;
   }
 };

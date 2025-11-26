@@ -7,7 +7,7 @@ const qna = `select question_no
 , supportplan_no
 , user_id
 , answer_yn
-from question`;
+from question ORDER BY question_no DESC;`;
 
 // sqlList.js
 // const insertQna = `

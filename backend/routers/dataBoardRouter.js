@@ -162,22 +162,87 @@ router.post("/", upload.single("uploadFile"), async (req, res) => {
     if (conn) conn.release();
   }
 });
+router.get("/regist-file", async (req, res) => {
+  const userId = req.query.user_id;
+
+  if (!userId) {
+    return res.status(400).json({ message: "user_id가 필요합니다." });
+  }
+
+  try {
+    const [member] = await query("findMemberInstitution", [userId]);
+
+    if (!member) {
+      return res.status(404).json({ message: "해당 사용자 없음" });
+    }
+
+    const [institution] = await query("findInstitutionName", [
+      member.institution_no,
+    ]);
+
+    if (!institution) {
+      return res.status(404).json({ message: "기관 정보 없음" });
+    }
+
+    res.json({
+      name: institution.institution_name,
+      code: member.institution_no,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "서버 오류" });
+  }
+});
+
 router.get("/institutions", async (req, res) => {
   try {
-    // 쿼리 실행 시 selectInstitutionList를 사용합니다.
-    const rows = await query("callInstitution"); // 'selectInstitutionList'는 쿼리 별칭이라고 가정
-    // DB 결과를 프론트엔드에서 사용하기 쉽게 { name: '이름', code: '이름' } 형태로 변환
-    const institutionList = rows.map((row) => ({
-      name: row.institution_name,
-      code: row.institution_name,
-    }));
+    const userId = req.query.user_id;
 
-    res.json(institutionList);
+    if (!userId) {
+      return res.status(400).json({ message: "user_id가 필요합니다." });
+    }
+
+    // 1) member 테이블에서 institution_no 가져오기
+    const [member] = await query("findMemberInstitution", [userId]);
+    if (!member) {
+      return res.status(404).json({ message: "해당 사용자 없음" });
+    }
+
+    const { institution_no } = member;
+
+    // 2) institution 테이블에서 institution_name 가져오기
+    const [institution] = await query("findInstitutionName", [institution_no]);
+
+    if (!institution) {
+      return res.status(404).json({ message: "기관 정보 없음" });
+    }
+
+    res.json({
+      name: institution.institution_name,
+      code: institution.institution_no,
+    });
   } catch (err) {
     console.error("기관 목록 DB 조회 실패:", err);
     res.status(500).json({ message: "서버 오류" });
   }
 });
+
+// router.get("/institutions", async (req, res) => {
+//   try {
+//     // 쿼리 실행 시 selectInstitutionList를 사용합니다.
+//     const rows = await query("callInstitution"); // 'selectInstitutionList'는 쿼리 별칭이라고 가정
+//     // DB 결과를 프론트엔드에서 사용하기 쉽게 { name: '이름', code: '이름' } 형태로 변환
+//     const institutionList = rows.map((row) => ({
+//       name: row.institution_name,
+//       code: row.institution_name,
+//     }));
+
+//     res.json(institutionList);
+//   } catch (err) {
+//     console.error("기관 목록 DB 조회 실패:", err);
+//     res.status(500).json({ message: "서버 오류" });
+//   }
+// });
 // router.get("/download/:file_no", async (req, res) => {
 //   try {
 //     const fileNo = req.params.file_no; // ⭐️ [수정] queries.fileSelect가 undefined일 경우를 대비하여 SQL 쿼리를 직접 정의합니다.

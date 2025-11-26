@@ -31,6 +31,12 @@ const model = ref([
         // },
       },
       { label: '자료실', icon: 'pi pi-fw pi-file', to: '/ud/data-board', roles: ['1a'] },
+      {
+        label: '자료실',
+        icon: 'pi pi-fw pi-file',
+        to: '/data-board',
+        roles: ['2a', '3a', 'SYS'],
+      },
     ],
   },
   {
@@ -121,7 +127,7 @@ const model = ref([
       },
       { label: '공고 목록', icon: 'pi pi-fw pi-list', to: '/system/notices', roles: ['SYS'] },
       { label: '조사지 관리', icon: 'pi pi-fw pi-book', to: '/system/survey', roles: ['SYS'] },
-      { label: '자료실', icon: 'pi pi-fw pi-file', to: '/system/data-board', roles: ['SYS'] },
+
       {
         label: '권한승인 대기 목록',
         icon: 'pi pi-fw pi-id-card',

@@ -46,22 +46,13 @@ const inquiryListOrderBy = `SELECT business_no, answer_list AS question_content,
 //   VALUES (?, ?, ?, NOW(), NOW(), ?)
 // `;
 const inquiryInsert = `
-  INSERT INTO inquiry (inquiry_name, inquiry_writer, inquiry_status, created_at, updated_at, notice_no)
-  VALUES (
-      ?,                                       -- 1. inquiry_name
-      ?,                                       -- 2. inquiry_writer
-      ?,                                       -- 3. inquiry_status
-      NOW(), 
-      NOW(), 
-      (
-          SELECT 
-              n.notice_no 
-          FROM notice n 
-          ORDER BY n.notice_no ASC             -- notice 테이블의 notice_no를 오름차순 정렬
-          LIMIT 1                              -- 가장 작은(첫 번째) notice_no를 선택
-      )
+  INSERT INTO inquiry (
+      inquiry_name,
+      inquiry_writer,
+      inquiry_status,
+      notice_no
   )
-`;
+  VALUES (?, ?, ?, ?)`;
 
 // 👇 --- [신규] '질문 목록' (상세) INSERT 쿼리 --- 👇
 const questionInsert = `

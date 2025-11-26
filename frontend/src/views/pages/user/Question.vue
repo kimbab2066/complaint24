@@ -1,11 +1,13 @@
-<script setup>
+<!-- <script setup>
 import { QuestionSort } from '@/service/QuestionSorts';
 import { SupportPlan } from '@/service/SupportPlan';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
+import { useAuthStore } from '@/stores/authStore';
 import { useToast } from 'primevue';
 
+const authStore = useAuthStore();
 const toast = useToast();
 const router = useRouter();
 
@@ -105,8 +107,134 @@ const request = async function request() {
     toast.add({ severity: 'error', summary: '알림', detail: '서버 오류' });
   }
 };
-</script>
+</script> -->
+<script setup>
+import { QuestionSort } from '@/service/QuestionSorts';
+import { SupportPlan } from '@/service/SupportPlan';
+import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import axios from 'axios';
+import { useAuthStore } from '@/stores/authStore';
+import { useToast } from 'primevue';
 
+const authStore = useAuthStore();
+const toast = useToast();
+const router = useRouter();
+
+const questions = ref([]);
+
+const questionSelection = ref([]);
+const supportSelection = ref([]);
+
+const supports = ref(null);
+const formData = ref({
+  title: null,
+  content: null,
+  category: null,
+  supportplan_no: null,
+});
+
+// ✅ Pinia 스토어에서 user_id를 가져와 변수에 저장합니다.
+const currentUserId = authStore.user?.id;
+console.log('userid=', currentUserId);
+console.log(JSON.stringify(currentUserId));
+console.log(currentUserId.length);
+
+// 🚨 onMounted 함수 수정: user_id를 SupportPlan.getSupportPlan()에 전달
+onMounted(() => {
+  QuestionSort.getQuestionSorts().then((data) => (questions.value = data));
+
+  // user_id가 있을 때만 지원 계획 목록을 불러옵니다.
+  if (currentUserId) {
+    // SupportPlan 서비스 함수가 user_id를 인수로 받도록 변경되어야 합니다.
+    SupportPlan.getSupportPlan(currentUserId).then((data) => (supports.value = data));
+  } else {
+    console.error('User ID가 누락되어 지원 계획을 불러올 수 없습니다.');
+    toast.add({
+      severity: 'error',
+      summary: '오류',
+      detail: '로그인 정보가 없어 지원 계획을 불러올 수 없습니다.',
+    });
+  }
+});
+
+function selectionList(event) {
+  setTimeout(() => {
+    if (!event.query.trim().length) {
+      questionSelection.value = [...questions.value];
+    } else {
+      questionSelection.value = questions.value.filter((item) => {
+        return item.name.toLowerCase().startsWith(event.query.toLowerCase());
+      });
+    }
+  }, 250);
+}
+
+function selectionList2(event) {
+  setTimeout(() => {
+    if (!event.query.trim().length) {
+      const currentSupports = Array.isArray(supports.value) ? supports.value : [];
+      supportSelection.value = [...currentSupports];
+    } else {
+      const currentSupports = Array.isArray(supports.value) ? supports.value : [];
+      supportSelection.value = currentSupports.filter((item) => {
+        return item.name.toLowerCase().startsWith(event.query.toLowerCase());
+      });
+    }
+  }, 250);
+}
+
+const cancel = function cancel() {
+  router.go(-1);
+};
+
+// 🚨 request 함수 수정: Pinia에서 가져온 currentUserId 사용
+const request = async function request() {
+  // 필수 필드 검증 (예시)
+  if (!formData.value.title || !formData.value.content) {
+    toast.add({ severity: 'warn', summary: '알림', detail: '제목과 내용 모두 입력해주세요' });
+    return;
+  }
+
+  // 🛑 Pinia에서 가져온 currentUserId 변수를 사용합니다.
+  if (!currentUserId) {
+    toast.add({
+      severity: 'error',
+      summary: '오류',
+      detail: '로그인 정보가 누락되었습니다. 다시 로그인해주세요.',
+    });
+    return;
+  }
+
+  const selectedCategory = formData.value.category;
+  const selectedSupportPlan = formData.value.supportplan_no;
+
+  const payload = {
+    title: formData.value.title,
+    content: formData.value.content,
+    // 선택된 객체에서 name 추출
+    category: selectedCategory ? selectedCategory.name : null,
+    // 선택된 객체에서 id만 추출
+    supportplan_no: selectedSupportPlan ? selectedSupportPlan.id : null,
+    user_id: currentUserId, // Pinia에서 가져온 user_id를 백엔드에 전달
+  };
+  console.log('전송 데이터:', payload);
+
+  try {
+    const response = await axios.post('/api/qna/question-answer/', payload);
+
+    if (response.status === 201 || response.status === 200) {
+      toast.add({ severity: 'success', summary: '알림', detail: '성공적으로 등록되었습니다.' });
+      router.push('/qna');
+    } else {
+      toast.add({ severity: 'error', summary: '알림', detail: '등록 실패' });
+    }
+  } catch (error) {
+    console.error('Q&A 등록 오류:', error);
+    toast.add({ severity: 'error', summary: '알림', detail: '서버 오류' });
+  }
+};
+</script>
 <template>
   <Toast />
   <Fluid class="card flex-col md:flex-row gap-2">
@@ -141,7 +269,7 @@ const request = async function request() {
         <AutoComplete
           v-model="formData.supportplan_no"
           :suggestions="supportSelection"
-          optionLabel="name"
+          optionLabel="support_plan_no"
           placeholder="지원 계획 번호 선택"
           dropdown
           @complete="selectionList2($event)"

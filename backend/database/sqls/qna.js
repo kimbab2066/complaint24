@@ -60,7 +60,7 @@ const findSupportNo = `SELECT sp.support_plan_no
 FROM support_plan sp
 JOIN ward w ON sp.ward_no = w.ward_no
 JOIN member m ON m.user_id = w.guardian_id
-WHERE m.user_id = 'usertest1'; -- 백틱 대신 작은따옴표 사용
+WHERE m.user_id = ?; 
 `;
 
 const countAnswers = `
@@ -124,4 +124,5 @@ module.exports = {
   updateAnswer,
   countAnswers,
   insertAnswer,
+  findSupportNo,
 };

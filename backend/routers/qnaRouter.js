@@ -26,12 +26,20 @@ router.get("/", async (req, res) => {
 router.post("/question-answer/", async (req, res) => {
   console.log("[qnaRouter] POST /question 요청 받음");
   // 프론트에서 보낸 데이터
-  const { title, category, content, supportplan_no, writer, user_id } =
-    req.body;
+  const {
+    title,
+    category,
+    content,
+    supportplan_no,
+    created_at,
+    writer,
+    user_id,
+  } = req.body;
   const result = await query("insertQna", [
     title,
     category,
     content,
+    created_at,
     supportplan_no,
     user_id,
   ]);
@@ -64,7 +72,13 @@ router.post("/question-answer/", async (req, res) => {
 });
 
 router.get("/supportplan", async (req, res) => {
-  const rows = await query("findSupportNo");
+  const userId = req.query.user_id; // 프론트에서 전달받음
+
+  if (!userId) {
+    return res.status(400).json({ message: "userId는 필수입니다." });
+  }
+
+  const rows = await query("findSupportNo", [userId]); // ★ SQL에 userId 전달
   res.json(rows);
 });
 router.get("/question-detail/:question_no", async (req, res) => {

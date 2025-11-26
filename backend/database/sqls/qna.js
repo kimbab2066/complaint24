@@ -15,27 +15,64 @@ from question`;
 //   VALUES (?, ?, ?, ?)
 // `;
 // ##################나중에 다시 살릴수도 있음############
+// const insertQna = `
+// INSERT INTO question (
+//   title,
+//   category,
+//   content,          -- 3번째 INSERT 컬럼
+//   supportplan_no,
+//   created_at,
+//   user_id,          -- 6번째 INSERT 컬럼 (조회 값)
+//   writer            -- 7번째 INSERT 컬럼 (조회 값)
+//   )
+//   SELECT
+//   ?,                -- 1. title
+//   ?,                -- 2. category
+//   ?,                -- 3. content
+//   ?,                -- 4. supportplan_no
+//   NOW(),
+//   m.user_id,          -- 5. user_id
+//   m.user_name         -- 6. writer
+// FROM member m
+// WHERE m.user_id = ?;    -- 7. WHERE 조건
+// `;
+// const insertQna = `INSERT INTO question (
+//   title,
+//   category,
+//   content,
+//   supportplan_no,
+//   created_at,
+//   writer,
+//   user_id
+// )
+// VALUES (?, ?, ?, ?, NOW(), ?, ?);`;
 const insertQna = `
 INSERT INTO question (
-  title,
-  category,
-  content,          -- 3번째 INSERT 컬럼
-  supportplan_no,
-  created_at,
-  user_id,          -- 6번째 INSERT 컬럼 (조회 값)
-  writer            -- 7번째 INSERT 컬럼 (조회 값)
-  )
-  SELECT
-  ?,                -- 1. title
-  ?,                -- 2. category
-  ?,                -- 3. content
-  ?,                -- 4. supportplan_no
-  NOW(),
-  m.user_id,          -- 5. user_id
-  m.user_name         -- 6. writer
+    title,
+    category,
+    content,
+    supportplan_no,
+    created_at,
+    writer,
+    user_id
+)
+SELECT 
+    ?,                                        -- 1. title
+    ?,                                        -- 2. category
+    ?,                                        -- 3. content
+    sp.support_plan_no,                       -- 4. supportplan_no (JOIN을 통해 조회)
+    NOW(),                                    -- 5. created_at (현재 시간)
+    m.user_name,                              -- 6. writer (member 테이블에서 조회)
+    m.user_id                                 -- 7. user_id (member 테이블에서 조회)
 FROM member m
-WHERE m.user_id = ?;    -- 7. WHERE 조건
+JOIN ward w ON m.user_id = w.guardian_id    -- member(작성자)와 ward(피보호자)를 보호자 ID로 조인
+JOIN support_plan sp ON w.ward_no = sp.ward_no -- ward와 support_plan을 ward_no로 조인
+WHERE m.user_id = ?;                          -- 8. WHERE 조건 (라우터에서 받은 user_id)
 `;
+const findById = `SELECT 
+  user_id,
+  user_name from member`;
+
 const readQuestion = `SELECT
     q.question_no,
     q.title,
@@ -125,4 +162,5 @@ module.exports = {
   countAnswers,
   insertAnswer,
   findSupportNo,
+  findById,
 };

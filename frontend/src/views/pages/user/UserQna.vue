@@ -100,7 +100,7 @@ function goToQuestionDetail(question_no) {
       <template #header>
         <div class="flex justify-between">
           <Button
-            v-if="user.role === '1a'"
+            v-if="authStore.user?.role === '1a'"
             type="button"
             icon="pi pi-fw pi-pencil"
             label="질문하기"

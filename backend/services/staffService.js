@@ -588,8 +588,9 @@ exports.getStaffReservations = async (req, res) => {
 
   try {
     const queryParams = [staff_id];
-    let queryName = "getStaffReservationsBase"; // 기본 쿼리 // 검색 조건에 따라 쿼리 이름과 파라미터 동적 변경
+    let queryName = "getStaffReservationsBase"; // 기본 쿼리
 
+    // 검색 조건에 따라 쿼리 이름과 파라미터 동적 변경
     if (searchType === "date" && startDate && endDate) {
       queryName = "getStaffReservationsByDate";
       queryParams.push(startDate, endDate);

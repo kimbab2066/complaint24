@@ -190,7 +190,7 @@ onMounted(() => {
           <!-- 관리 -->
           <Column header="관리" style="min-width: 12rem; text-align: center">
             <template #body="{ data }">
-              <div class="flex justify-content-center gap-2">
+              <div> <!-- flex justify-content-center gap-2 제거 -->
                 <Button
                   label="보기"
                   icon="pi pi-eye"

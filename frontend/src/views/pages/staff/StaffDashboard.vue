@@ -106,10 +106,11 @@ const getStatusSeverity = (status) => {
   }
 };
 
-const formatDateTime = (dateTimeString) => {
+const formatDateWithDay = (dateTimeString) => {
   if (!dateTimeString) return '';
   const date = new Date(dateTimeString);
-  return date.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false });
+  const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' };
+  return date.toLocaleDateString('ko-KR', options);
 };
 
 // [신규] 날짜를 'YYYY-MM-DD' 형식으로 변환하는 헬퍼 함수
@@ -188,15 +189,14 @@ const navigateTo = (routeName) => {
             <div class="text-xl font-bold">최근 예약 목록</div>
           </template>
           <template #empty> 예약 내역이 없습니다. </template>
-          <Column field="start_time" header="시간" style="width: 15%">
+          <Column field="start_time" header="날짜" style="width: 25%">
             <template #body="slotProps">
-              {{ formatDateTime(slotProps.data.start_time) }}
+              {{ formatDateWithDay(slotProps.data.start_time) }}
             </template>
           </Column>
           <Column field="applicantName" header="신청인(보호자)" style="width: 25%"></Column>
           <Column field="wardName" header="피보호자" style="width: 25%"></Column>
-          <!-- <Column field="res_reason" header="상담사유" style="width: 20%"></Column> -->
-          <Column field="status" header="상태" style="width: 15%">
+          <Column field="status" header="상태" style="width: 25%">
             <template #body="slotProps">
               <Tag
                 :value="slotProps.data.status"
@@ -300,5 +300,14 @@ body {
 .p-tag {
   font-size: 0.875rem;
   font-weight: 600;
+}
+
+/* CounselingList.vue의 스타일과 일관성을 맞추기 위한 :deep 셀렉터 추가 */
+:deep(.p-datatable .p-datatable-thead > tr > th) {
+  text-align: center;
+}
+
+:deep(.p-datatable .p-datatable-tbody > tr > td) {
+  text-align: center;
 }
 </style>

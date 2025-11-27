@@ -48,7 +48,7 @@ const wardsearch = `
 SELECT
     w.name AS '이름',
     w.age AS '나이',
-    NULL AS '생년월일',
+    m.user_name AS '보호자', 
     CASE
         WHEN w.sex = 'MALE' THEN '남'
         WHEN w.sex = 'FEMALE' THEN '여'
@@ -59,7 +59,8 @@ SELECT
     w.ward_no AS '피보호자번호'
 FROM survey s
 INNER JOIN ward w ON s.ward_no = w.ward_no
-WHERE s.survey_no = ?;
+INNER JOIN member m ON s.writer = m.user_id 
+WHERE s.survey_no = ?
 `;
 
 const wardno = `SELECT * FROM survey WHERE survey_no = ?`;
@@ -67,6 +68,7 @@ const wardno = `SELECT * FROM survey WHERE survey_no = ?`;
 const supportinsert = `
 INSERT INTO support_plan (
   ward_no,
+  notice_no,
   support_plan_goal,
   plan,
   business_name,
@@ -74,8 +76,9 @@ INSERT INTO support_plan (
   file_no,
   support_plan_status,
   staff_name,
-  writer_date
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
+  writer_date,
+  priority_no
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)
 `;
 
 /**
@@ -133,12 +136,14 @@ WHERE at_no = ? AND staff_id = ? AND status = '상담가능'`;
 //지원결과보고서 작성
 const insertsupportresultquery = `
 INSERT INTO support_result (
+    ward_no,
     support_title,
     support_content,
     support_spend,
+    support_plan_no,
     support_started_at,
     support_ended_at
-) VALUES (?, ?, ?, ?, ?)
+) VALUES (?, ?, ?, ?, ?, ?, ?)
 `;
 
 //지원결과보고서 조회
@@ -226,60 +231,68 @@ const getWardDetail = `
 SELECT
     name AS '이름',
     age AS '나이',
-    NULL AS '생년월일',
+    m.user_name AS '보호자',
     CASE
         WHEN sex = 'MALE' THEN '남'
         WHEN sex = 'FEMALE' THEN '여'
         ELSE sex
     END AS '성별',
     disabled_level AS '장애유형',
-    address AS '주소',
+    ward.address AS '주소',
     ward_no AS '피보호자번호'
 FROM ward
+Join member m
+on ward.guardian_id = m.user_id
 WHERE ward_no = ?
 `;
+
 const supportResultByWardNoSurveyNo = `
 SELECT
-  sr.support_result_no,
-  sr.support_title,
-  sr.support_spend,
-  sr.support_started_at,
-  sr.support_ended_at,
-  sr.support_content,
-  sp.staff_name,
-  sp.business_name
-FROM 
-  support_result sr
-JOIN 
-  support_plan sp ON sr.support_plan_no = sp.support_plan_no
-JOIN 
-  priority p ON sp.priority_no = p.priority_no
-WHERE 
-  sp.ward_no = ? AND p.survey_no = ?
-ORDER BY 
-  sr.support_started_at DESC
+  support_result_no,
+  support_title,
+  support_spend,
+  support_started_at,
+  support_ended_at,
+  support_content
+FROM support_result
+WHERE ward_no = ?
+ORDER BY support_started_at DESC
 `;
 
 const supportPlanByWardNoSurveyNo = `
 SELECT 
-  sp.support_plan_no,
-  sp.support_plan_goal,
-  sp.staff_name,
-  sp.created_at,
-  sp.writer_date,
-  sp.priority_no,
-  sp.plan,
-  sp.business_name,  
-  sp.spend,          
-  sp.support_plan_status
-FROM 
-  support_plan sp
-JOIN 
-  priority p ON sp.priority_no = p.priority_no
-WHERE 
-  p.ward_no = ? AND p.survey_no = ?
-ORDER BY 
-  sp.support_plan_no DESC`;
+  support_plan_no,
+  support_plan_goal,
+  staff_name,
+  created_at,
+  writer_date,
+  priority_no,
+  plan,
+  business_name,  
+  spend,          
+  support_plan_status,
+  ward_no
+FROM support_plan
+WHERE ward_no = ?
+ORDER BY support_plan_no DESC`;
+
+const selectnotice = `
+SELECT 
+    notice_no,
+    business_name
+FROM notice
+WHERE business_name IS NOT NULL
+ORDER BY notice_no DESC
+`;
+
+const selectresultnotice = `
+SELECT DISTINCT
+    business_name,
+    notice_no,
+    support_plan_no
+FROM support_plan
+WHERE support_plan_status = '승인' and ward_no = ?
+`;
 
 module.exports = {
   surveySelect,
@@ -300,10 +313,13 @@ module.exports = {
   Staffplanitem,
   reservationCount,
   newReservationCount,
+  notCompleteConsultCount,
   findWardNoBySurveyNo,
   findSurveysByWardNo,
-  getWardDetail, // 새로 추가
+  getWardDetail,
   supportPlanByWardNoSurveyNo,
   supportResultByWardNoSurveyNo,
   notCompleteConsultCount,
+  selectnotice,
+  selectresultnotice,
 };

@@ -22,6 +22,7 @@ const model = ref([
         icon: 'pi pi-fw pi-check-square',
         to: '/system/institutions/register',
       },
+      { label: '자료실', icon: 'pi pi-fw pi-file', to: '/data-board', roles: ['SYS'] },
       {
         label: '등록기관 목록',
         icon: 'pi pi-fw pi-list',
@@ -31,7 +32,6 @@ const model = ref([
       { label: '공고 등록', icon: 'pi pi-fw pi-check-square', to: '/system/notices/register' },
       { label: '공고 목록', icon: 'pi pi-fw pi-list', to: '/system/notices' },
       { label: '조사지 관리', icon: 'pi pi-fw pi-book', to: '/system/survey' },
-      { label: '자료실', icon: 'pi pi-fw pi-file', to: '/system/data-board' },
       { label: '권한승인 대기 목록', icon: 'pi pi-fw pi-id-card', to: '/system/approval' },
     ],
   },

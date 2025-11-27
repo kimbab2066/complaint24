@@ -5,10 +5,11 @@
 import { QnaService } from '@/service/QnaService';
 
 import { onMounted, ref } from 'vue';
-
+import { useAuthStore } from '@/stores/authStore';
 import { useRouter } from 'vue-router';
 import axios from 'axios'; // 👈 2. [추가] axios import
 
+const authStore = useAuthStore();
 const router = useRouter();
 const qna1 = ref([]);
 
@@ -99,6 +100,7 @@ function goToQuestionDetail(question_no) {
       <template #header>
         <div class="flex justify-between">
           <Button
+            v-if="authStore.user?.role === '1a'"
             type="button"
             icon="pi pi-fw pi-pencil"
             label="질문하기"

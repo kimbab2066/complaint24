@@ -1,13 +1,47 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import axios from 'axios';
 import InputText from 'primevue/inputtext';
 import Textarea from 'primevue/textarea';
 import Calendar from 'primevue/calendar';
 import Button from 'primevue/button';
+import Dropdown from 'primevue/dropdown';
+
+const selected = ref('');
+const selectedSupPlan = ref('');
+watch(selected, (newValue, oldValue) => {
+  selectedSupPlan.value = planOptions.value.find((opt) => opt.value === newValue).support_plan_no;
+});
+
+// 부모 컴포넌트로부터 wardId 받기
+const props = defineProps({
+  wardId: { type: [String, Number], required: true },
+});
 
 // 전역 고유 id 카운터
 let formId = 0;
+
+// 🔥 DB에서 불러온 승인된 사업명 목록
+const planOptions = ref([]);
+
+// 🔥 페이지 로딩 시 승인된 사업명 목록 가져오기
+onMounted(async () => {
+  if (!props.wardId) return;
+  try {
+    const res = await axios.get(`/api/staff/survey/${props.wardId}`);
+    console.log('🔥 승인된 사업명 응답:', res.data);
+
+    // res.data가 배열이면 바로 map
+    planOptions.value = res.data.map((item) => ({
+      label: item.business_name, // 화면 표시
+      value: item.business_name, // 실제 선택값
+      notice_no: item.notice_no, // INSERT용으로 필요
+      support_plan_no: item.support_plan_no,
+    }));
+  } catch (err) {
+    console.error('사업명 불러오기 실패:', err);
+  }
+});
 
 // 폼 초기화
 const createForm = () => ({
@@ -15,6 +49,8 @@ const createForm = () => ({
   supportTitle: '',
   supportSpend: '',
   supportContent: '',
+  supportCategory: null, // 🔥 Dropdown에서 선택한 사업명
+  supportNoticeNo: null, // 🔥 선택한 사업의 notice_no
   startedAt: null,
   endedAt: null,
 });
@@ -38,59 +74,42 @@ const formatDateToSQL = (date) => {
   return `${yyyy}-${mm}-${dd} 00:00:00`;
 };
 
-// 백엔드에게 전달할 payload 생성
+// payload 생성
 const makePayload = (form) => ({
-  support_title: form.supportTitle,
+  ward_no: Number(props.wardId),
+  support_title: form.supportTitle || null,
   support_content: form.supportContent || null,
   support_spend: Number(form.supportSpend.replace(/[^0-9]/g, '')) || 0,
-  support_started_at: formatDateToSQL(form.startedAt),
-  support_ended_at: formatDateToSQL(form.endedAt),
+
+  // 🔥 Dropdown에서 선택한 사업명과 notice_no 포함
+  support_category: form.supportCategory || null,
+  //support_plan_no: form.support_plan_No || null,
+  support_plan_no: selectedSupPlan.value || null,
+
+  support_started_at: formatDateToSQL(form.startedAt) || null,
+  support_ended_at: formatDateToSQL(form.endedAt) || null,
 });
 
-// SQL 테스트 출력
-const generateSQL = (form) => {
-  const spend = Number(form.supportSpend.replace(/[^0-9]/g, '')) || 0;
-  const started = formatDateToSQL(form.startedAt);
-  const ended = formatDateToSQL(form.endedAt);
-
-  return `
-INSERT INTO support_result (
-  support_title,
-  support_content,
-  support_spend,
-  support_started_at,
-  support_ended_at
-) VALUES (
-  '${form.supportTitle}',
-  ${form.supportContent ? `'${form.supportContent}'` : 'NULL'},
-  ${spend},
-  '${started}',
-  '${ended}'
-);`;
-};
-
-// 임시저장(콘솔만)
-const saveTemp = (form) => {
-  console.log('==== 임시저장 SQL ====');
-  console.log(generateSQL(form));
-};
-
-// 승인요청(DB 저장)
+// 승인 요청
 const requestApproval = async (form) => {
-  console.log('==== 승인요청 SQL ====');
-  console.log(generateSQL(form));
-
   if (!form.supportTitle) {
     alert('지원 제목은 필수입니다.');
     return;
   }
 
+  if (!form.supportCategory || !selectedSupPlan.value) {
+    alert('사업을 선택해주세요.');
+    return;
+  }
+
   try {
     const payload = makePayload(form);
+    console.log('🔥 전송 payload:', payload); // 디버깅
     await axios.post('/api/staff/support-result', payload);
     alert('지원 결과가 저장되었습니다!');
+    forms.value = [createForm()];
   } catch (err) {
-    console.error(err);
+    console.error('지원 결과 저장 실패:', err);
     alert('저장 실패! 콘솔을 확인하세요.');
   }
 };
@@ -109,6 +128,7 @@ const addForm = () => forms.value.push(createForm());
     <h1 class="text-3xl font-extrabold mb-8 text-gray-800 border-b-4 border-indigo-300 pb-2">
       📝 지원 결과 작성
     </h1>
+
     <div class="space-y-8">
       <div
         v-for="form in forms"
@@ -128,6 +148,27 @@ const addForm = () => forms.value.push(createForm());
             v-model="form.supportSpend"
             @input="formatAmount(form)"
             class="w-full text-right"
+          />
+        </div>
+
+        <!-- 사업 카테고리 (Dropdown) -->
+        <div class="flex flex-col gap-2">
+          <label class="font-medium text-gray-700">사업 카테고리</label>
+          <Dropdown
+            v-model="form.supportCategory"
+            :options="planOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="사업을 선택하세요"
+            class="w-full"
+            @change="
+              (e) => {
+                // 선택된 사업의 notice_no를 함께 저장
+                //const selected = planOptions.value.find((opt) => opt.value === e.value);
+                //form.support_plan_No = selected ? selected.support_plan_no : null;
+                selected = e.value;
+              }
+            "
           />
         </div>
 

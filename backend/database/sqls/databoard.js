@@ -9,12 +9,25 @@ board_no
 , file_no
 , created_at
 , updated_at
-from board`;
+from board ORDER BY board_no DESC`;
+
+const findMemberInstitution = `
+SELECT institution_no
+FROM member
+WHERE user_id = ?;
+`;
+const findInstitutionName = `
+SELECT institution_name
+FROM institution
+WHERE institution_no = ?;
+`;
+const callInstitution = `SELECT institution_name FROM board`;
 
 const boardInsert = `
   INSERT INTO board (institution_name, writer, title, file_no, created_at)
   VALUES (?, ?, ?, ?, now())
 `;
+
 // const createFileNo = `SELECT CONCAT_WS(
 // ''
 // , 'FILE'
@@ -56,4 +69,7 @@ module.exports = {
   fileInsert,
   fileSelect,
   fileSelectMulti,
+  callInstitution,
+  findMemberInstitution,
+  findInstitutionName,
 };

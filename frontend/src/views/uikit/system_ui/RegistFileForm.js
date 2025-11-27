@@ -4,8 +4,21 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import { useToast } from 'primevue/usetoast'; // 👈 1. [추가]
+import { useAuthStore } from '@/stores/authStore';
 
 export function RegistFileForm1() {
+  const authStore = useAuthStore();
+  const currentUserId = authStore.user?.id;
+
+  onMounted(async () => {
+    if (currentUserId) {
+      const result = await axios.get('/api/system/data-board/regist-file', {
+        params: { user_id: currentUserId },
+      });
+
+      institutionList.value = [result.data];
+    }
+  });
   const router = useRouter();
   const toast = useToast(); // 👈 3. [추가]
 
@@ -83,7 +96,7 @@ export function RegistFileForm1() {
         life: 3000,
       });
 
-      router.push('/system/data-board'); // 목록 페이지로 이동
+      router.push('/data-board'); // 목록 페이지로 이동
     } catch (err) {
       // 6. 등록 실패
       console.error('등록 실패:', err);

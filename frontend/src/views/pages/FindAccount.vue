@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import axios from 'axios';
 
-// 현재 탭
+// 현재 탭 이메일로 찾기 혹은 전화번호로 찾기 선택
 const currentTab = ref('email');
 
 // 폼 데이터 구조
@@ -53,8 +53,9 @@ const showMessage = (target, text, type = 'success') => {
 };
 
 // 인증번호 전송 함수
-const sendVerification = (type) => {
+const sendVerification = async (type) => {
   const target = form.value[type];
+  console.log(target);
 
   if (!target.input) {
     showMessage(type, '연락처 또는 이메일을 입력하세요', 'error');
@@ -64,26 +65,13 @@ const sendVerification = (type) => {
   const code = Math.floor(100000 + Math.random() * 900000).toString();
   verificationCodes.value[type] = code;
 
-  showMessage(type, `인증번호가 발송되었습니다 임시${code}`, 'success');
-};
+  const key = type === 'email' ? 'idEmail' : 'idPhone';
 
-// 인증번호 확인
-const verifyCode = (type) => {
-  if (form.value[type].code === verificationCodes.value[type]) {
-    showMessage(type, '인증 성공', 'success');
-  } else {
-    showMessage(type, '인증번호가 올바르지 않습니다', 'error');
-  }
-};
-
-// 아이디 찾기
-const findId = async (method) => {
-  const key = method === 'email' ? 'idEmail' : 'idPhone';
   const data =
-    method === 'email'
+    type === 'email'
       ? { name: form.value.idEmail.name, email: form.value.idEmail.input }
       : { name: form.value.idPhone.name, phone: form.value.idPhone.input };
-
+  console.log(form.value.idEmail.input);
   // 입력 확인
   if (!data.name || (!data.email && !data.phone)) {
     showMessage(key, '이름과 이메일/전화번호를 입력하세요', 'error');
@@ -101,7 +89,21 @@ const findId = async (method) => {
     console.error('이메일 발송 오류', error);
     showMessage(key, '서버 오류 발생', 'error');
   }
+
+  showMessage(type, `인증번호가 발송되었습니다 임시${code}`, 'success');
 };
+
+// 인증번호 확인
+const verifyCode = (type) => {
+  if (form.value[type].code === verificationCodes.value[type]) {
+    showMessage(type, '인증 성공', 'success');
+  } else {
+    showMessage(type, '인증번호가 올바르지 않습니다', 'error');
+  }
+};
+
+// 아이디 찾기
+// const findId = async (method) => {};
 
 // 비밀번호 찾기
 const findPw = (method) => {

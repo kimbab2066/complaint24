@@ -23,48 +23,126 @@ router.get("/", async (req, res) => {
  *  [POST /api/qna/question]
  *  QnA 등록
  */
-router.post("/question-answer/:question_no", async (req, res) => {
-  console.log("[qnaRouter] POST /question 요청 받음");
-  const tempId = "test";
-  // 프론트에서 보낸 데이터
-  const { title, category, content, supportplan_no, writer } = req.body;
-  const result = await query("insertQna", [
-    title,
-    category,
-    content,
-    supportplan_no,
-    tempId,
-  ]);
+router.post("/question-answer/", async (req, res) => {
+  const { title, category, content, user_id } = req.body;
 
-  if (!title) {
-    return res.status(400).json({ message: "제목누락" });
+  if (!title || !content || !user_id) {
+    return res.status(400).json({ message: "필수 데이터 누락" });
   }
 
-  let conn;
-
   try {
-    conn = await connectionPool.getConnection();
-    await conn.beginTransaction();
-
-    await conn.commit();
-
-    console.log("QnA 등록 성공!", "insertId");
+    const result = await query("insertQna", [
+      title,
+      category,
+      content,
+      user_id, // WHERE m.user_id = ?
+    ]);
 
     res.status(201).json({
-      message: "질문이 성공적으로 등록되었습니다.",
+      message: "질문 등록 성공",
       question_no: result.insertId,
     });
   } catch (err) {
-    if (conn) await conn.rollback();
     console.error("QnA 등록 실패:", err);
     res.status(500).json({ message: "서버 오류", error: err.message });
-  } finally {
-    if (conn) conn.release();
   }
 });
+// router.post("/question-answer/", async (req, res) => {
+//   console.log("[qnaRouter] POST /question 요청 받음");
+
+//   // 1️⃣ 먼저 body에서 필요한 값 꺼내기 (순서가 중요!)
+//   const { title, category, content, supportplan_no, user_id } = req.body;
+
+//   // 2️⃣ 필수값 검증
+//   if (!title || !content || !user_id) {
+//     return res.status(400).json({ message: "필수값 누락" });
+//   }
+
+//   try {
+//     // 3️⃣ 작성자 조회
+//     const [member] = await query("findById", [user_id]);
+//     if (!member) {
+//       return res.status(400).json({ message: "유효하지 않은 user_id 입니다." });
+//     }
+
+//     const writer = member.user_name;
+
+//     // 4️⃣ INSERT 실행
+//     // insertQna SQL 은 다음 순서여야 함:
+//     // (?, ?, ?, ?, NOW(), ?, ?)
+//     const result = await query("insertQna", [
+//       title,
+//       category,
+//       content,
+//       supportplan_no,
+//       user_id,
+//       writer,
+//     ]);
+
+//     console.log("QnA 등록 성공!", result.insertId);
+
+//     res.status(201).json({
+//       message: "질문이 성공적으로 등록되었습니다.",
+//       question_no: result.insertId,
+//     });
+//   } catch (err) {
+//     console.error("QnA 등록 실패:", err);
+//     res.status(500).json({ message: "서버 오류", error: err.message });
+//   }
+// });
+
+// router.post("/question-answer/", async (req, res) => {
+//   console.log("[qnaRouter] POST /question 요청 받음");
+//   // 프론트에서 보낸 데이터
+//   const [member] = await query("findById", [user_id]);
+//   const writer = member.user_name;
+//   const { title, category, content, supportplan_no, created_at, user_id } =
+//     req.body;
+//   const result = await query("insertQna", [
+//     title,
+//     category,
+//     content,
+//     supportplan_no,
+//     created_at,
+//     writer,
+//     user_id,
+//   ]);
+
+//   if (!title) {
+//     return res.status(400).json({ message: "제목누락" });
+//   }
+
+//   let conn;
+
+//   try {
+//     conn = await connectionPool.getConnection();
+//     await conn.beginTransaction();
+
+//     await conn.commit();
+
+//     console.log("QnA 등록 성공!", "insertId");
+
+//     res.status(201).json({
+//       message: "질문이 성공적으로 등록되었습니다.",
+//       question_no: result.insertId,
+//     });
+//   } catch (err) {
+//     if (conn) await conn.rollback();
+//     console.error("QnA 등록 실패:", err);
+//     res.status(500).json({ message: "서버 오류", error: err.message });
+//   } finally {
+//     if (conn) conn.release();
+//   }
+// });
 
 router.get("/supportplan", async (req, res) => {
-  const rows = await query("supportPlan");
+  const userId = req.query.user_id; // 프론트에서 전달받음
+
+  if (!userId) {
+    return res.status(400).json({ message: "userId는 필수입니다." });
+  }
+
+  const rows = await query("findSupportNo", [userId]); // ★ SQL에 userId 전달
   res.json(rows);
 });
 router.get("/question-detail/:question_no", async (req, res) => {

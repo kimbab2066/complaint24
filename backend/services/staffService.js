@@ -27,23 +27,6 @@ exports.getStaffPlanItems = async (req, res) => {
       .send({ message: "담당자 승인 조회 중 오류가 발생했습니다." });
   }
 };
-// 오늘의 상담 건수 조회
-exports.getTodayConsultCount = async (req, res) => {
-  try {
-    // 로그인 된 staff_id
-    const staff_id = req.user.id;
-
-    if (!staff_id) {
-      return res.status(401).json({ message: "로그인 정보가 없습니다" });
-    }
-    let result = await db.query("consultCount", [staff_id]);
-    const count = result[0]?.consult_count || 0;
-    res.status(200).json({ consultCount: count });
-  } catch (error) {
-    console.error("상담 건수 조회 오류", error);
-    res.status(500).json({ message: "상담 건수 조회 실패" });
-  }
-};
 
 exports.getReservationCount = async (req, res) => {
   try {
@@ -80,6 +63,25 @@ exports.getPendingReportsCount = async (req, res) => {
     res.status(500).json({ message: "서버 오류" });
   }
 };
+
+// 신규 예약 신청 개수
+exports.getNewReservationCount = async () => {
+  const newReservation = await db.query("newReservationCount", [staff_id]);
+
+  let total_count = 0;
+  if (newReservation && newReservation.count.length > 0) {
+    total_count = newReservation[0].total_count;
+  }
+  return { total_count: total_count };
+};
+
+// 미작성 상담일지 개수
+// exports.getNotCompleteConsultCount = async () => {
+//   const notCompleteConsult = await db.query("notCompleteConsultCount", [staff_id]);
+
+//   let total_count = 0;
+//   if ()
+// }
 
 exports.surveySelect = async (req, res) => {
   console.log("Survey List 조회");
@@ -173,6 +175,7 @@ exports.createSupportPlan = async (req, res) => {
 
   const {
     ward_no,
+    notice_no,
     support_plan_goal,
     plan,
     business_name,
@@ -196,6 +199,7 @@ exports.createSupportPlan = async (req, res) => {
     // 🔑 쿼리가 요구하는 7개의 파라미터만 정확히 전달
     await db.query("supportinsert", [
       ward_no,
+      notice_no,
       support_plan_goal,
       plan,
       business_name,
@@ -217,26 +221,23 @@ exports.createSupportPlan = async (req, res) => {
 exports.createSupportResult = async (req, res) => {
   try {
     const {
+      ward_no,
       support_title,
       support_content,
       support_spend,
+      support_plan_no,
       support_started_at,
       support_ended_at,
     } = req.body;
 
-    console.log("프론트에서 전달한 지원결과서 요청값: ", req.body);
-    // 필수 값 체크
     if (!support_title) {
-      console.log("이게뭔데: ", !support_title);
-      console.log("이건누군데", support_title);
       return res.status(400).json({ message: "지원 제목은 필수입니다." });
     }
 
-    // 안전한 날짜 변환 함수
     const formatDate = (date) => {
       if (!date) return null;
       const d = new Date(date);
-      if (isNaN(d)) return null; // Invalid Date 방지
+      if (isNaN(d)) return null;
       const yyyy = d.getFullYear();
       const mm = String(d.getMonth() + 1).padStart(2, "0");
       const dd = String(d.getDate()).padStart(2, "0");
@@ -244,15 +245,16 @@ exports.createSupportResult = async (req, res) => {
     };
 
     const params = [
+      Number(ward_no), // 🟢 필수 추가
       support_title,
       support_content || null,
       Number(String(support_spend || 0).replace(/[^0-9]/g, "")),
+      support_plan_no,
       formatDate(support_started_at),
       formatDate(support_ended_at),
     ];
 
-    // SQL 쿼리 실행 (support_plan_no 제거)
-    let result = await db.query("insertsupportresultquery", params);
+    const result = await db.query("insertsupportresultquery", params);
 
     res.json({ message: "등록 성공", resultId: result.insertId });
   } catch (error) {
@@ -318,6 +320,22 @@ exports.approveSupportPlan = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "승인 중 오류 발생" });
+  }
+};
+
+// 사업 목록 조회
+exports.getNoticeList = async (req, res) => {
+  try {
+    // db.query에 변수로 SQL 전달
+    const rows = await db.query("selectnotice"); // MySQL2 기준
+    console.log(
+      "================================================================",
+      rows
+    );
+    res.status(200).json({ result: rows });
+  } catch (error) {
+    console.error("사업 목록 조회 오류:", error);
+    res.status(500).json({ message: "사업 목록 조회 실패" });
   }
 };
 // 6. planItemList: support_plan 테이블에서 상세 항목 조회
@@ -699,5 +717,16 @@ exports.supportResultByWardSurveyNo = async (req, res) => {
   } catch (err) {
     console.error("지원결과 조회 오류:", err);
     res.status(500).json({ error: "지원결과 조회 실패" });
+  }
+};
+
+exports.getApprovedBusinessNames = async (req, res) => {
+  try {
+    const rows = await db.query("selectresultnotice", [req.params.wardId]);
+    console.log(rows);
+    res.send(rows);
+  } catch (err) {
+    console.error("지원사업명 조회 실패:", err);
+    throw err;
   }
 };

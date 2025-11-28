@@ -80,7 +80,6 @@ module.exports.getAvailableSchedules = async (req, res) => {
  */
 module.exports.createReservation = async (req, res) => {
   console.log("--- createReservation Service ---");
-  const connection = await db.connectionPool.getConnection();
   try {
     const { at_no, start_time_stamp, ward_no, res_reason } = req.body;
 
@@ -95,12 +94,9 @@ module.exports.createReservation = async (req, res) => {
           "필수 정보(at_no, start_time_stamp, ward_no)가 누락되었습니다.",
       });
     }
-
-    await connection.beginTransaction();
-
-    const staffResult = await connection.query(sqlList.getStaffIdByAtNo, [
-      at_no,
-    ]);
+    // 1. staff_id 조회
+    console.log(`Executing Query: getStaffIdByAtNo with at_no = ${at_no}`);
+    const staffResult = await db.query("getStaffIdByAtNo", [at_no]);
 
     if (!staffResult || staffResult.length === 0) {
       await connection.rollback();
@@ -123,24 +119,20 @@ module.exports.createReservation = async (req, res) => {
       at_no,
     ];
 
-    const insertResult = await connection.query(
-      sqlList.createReservation,
-      params
-    );
-    const newResNo = insertResult.insertId;
-
+    console.log(`Executing Query: createReservation with params:`, params);
+    const insertResult = await db.query("createReservation", params);
+    const newResNo = insertResult.insertId; // 방금 생성된 res_no
     if (newResNo) {
-      await connection.query(sqlList.createAlarm, [
-        `[신규 예약] ${name || "홍길동"} 님의 상담 예약이 신청되었습니다.`,
-        staff_id,
-        user_id,
-        "예약확정",
-        newResNo,
+      await db.query("createAlarm", [
+        `[신규 예약] ${name || "홍길동"} 님의 상담 예약이 신청되었습니다.`, // content
+        staff_id, // to_id (담당자)
+        user_id, // from_id (신청자)
+        "예약확정", // status
+        newResNo, // res_no]
       ]);
       console.log(`Alarm created for res_no ${newResNo}`);
     }
 
-    await connection.commit();
     console.log("Reservation successful (slot reserved).");
     res.status(201).send({ message: "상담 예약이 완료되었습니다." });
   } catch (error) {
@@ -153,8 +145,6 @@ module.exports.createReservation = async (req, res) => {
         .send({ message: "이미 예약된 시간이거나 처리 중복 오류입니다." });
     }
     res.status(500).send({ message: "예약 처리 중 오류가 발생했습니다." });
-  } finally {
-    if (connection) connection.release();
   }
 };
 

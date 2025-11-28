@@ -101,16 +101,13 @@ module.exports.saveDraft = async (req, res) => {
       res_no,
     } = req.body;
 
-    // 임시저장은 '임시저장' 상태로 강제 설정
-    const status = "임시저장";
-
     const params = [
       staff_id,
       ward_no,
       guardian_id,
       consult_datetime,
       disabled_level,
-      consult_status || "진행중",
+      "임시저장", // 임시저장은 '임시저장' 상태로 강제 설정
       content,
       survey_no,
       res_no,

@@ -6,7 +6,7 @@ export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null,
     accessToken: null,
-    refreshToken: null, // [추가] Refresh Token도 LocalStorage에 저장
+    refreshToken: null,
     isLoading: false,
   }),
   getters: {

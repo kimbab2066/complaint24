@@ -217,6 +217,7 @@ exports.createSupportResult = async (req, res) => {
       support_plan_no,
       support_started_at,
       support_ended_at,
+      staff_name,
     } = req.body;
 
     if (!support_title) {
@@ -241,6 +242,7 @@ exports.createSupportResult = async (req, res) => {
       support_plan_no,
       formatDate(support_started_at),
       formatDate(support_ended_at),
+      staff_name,
     ];
 
     const result = await db.query("insertsupportresultquery", params);
@@ -372,10 +374,13 @@ exports.getSchedules = async (req, res) => {
   try {
     // 1. '상담가능' 블록 조회 (주석 처리 - 예약된 시간만 보여주기로 함)
     // const availableBlocks = await db.query("getAvailableSlots", [staff_id]);
-    
+
     // 2. 확정된 '예약' 목록 상세 조회
-    const upcomingReservations = await db.query("getStaffUpcomingReservations", [staff_id]);
-    
+    const upcomingReservations = await db.query(
+      "getStaffUpcomingReservations",
+      [staff_id]
+    );
+
     // 3. 빠른 조회를 위해 예약된 시간 Set 생성 (예약된 시간을 표시해야 하므로 필요 없음)
     // const reservedTimeSlots = new Set(
     //   upcomingReservations.map(r => new Date(r.res_start).toISOString())
@@ -389,7 +394,7 @@ exports.getSchedules = async (req, res) => {
 
     //   while (currentTime < block.end_time) {
     //     const isoTimestamp = currentTime.toISOString();
-        
+
     //     if (!reservedTimeSlots.has(isoTimestamp)) {
     //       const dateKey = formatDateISO(currentTime);
     //       if (!scheduledData[dateKey]) {
@@ -417,7 +422,7 @@ exports.getSchedules = async (req, res) => {
         type: "reservation",
         label: `${formatTime(res_start)} ${res.ward_name}님`,
         res_no: res.res_no,
-        ward_no: res.ward_no
+        ward_no: res.ward_no,
       });
     });
 
@@ -427,7 +432,6 @@ exports.getSchedules = async (req, res) => {
     }
 
     res.status(200).json(scheduledData);
-
   } catch (error) {
     console.error("스케줄 조회 오류:", error);
     res.status(500).send({ message: "스케줄 조회 중 오류가 발생했습니다." });

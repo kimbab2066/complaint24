@@ -1,22 +1,28 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import axios from 'axios';
 import InputText from 'primevue/inputtext';
 import Textarea from 'primevue/textarea';
 import Calendar from 'primevue/calendar';
 import Button from 'primevue/button';
 import Dropdown from 'primevue/dropdown';
+import { useAuthStore } from '@/stores/authStore';
+import { useToast } from 'primevue';
 
+const authStore = useAuthStore(); // authStore 인스턴스 생성
 const selected = ref('');
 const selectedSupPlan = ref('');
 watch(selected, (newValue, oldValue) => {
   selectedSupPlan.value = planOptions.value.find((opt) => opt.value === newValue).support_plan_no;
 });
+const toast = useToast();
 
 // 부모 컴포넌트로부터 wardId 받기
 const props = defineProps({
   wardId: { type: [String, Number], required: true },
 });
+// const staffName = computed(() => authStore.user?.name);
+const staffName = authStore.user.name;
 
 // 전역 고유 id 카운터
 let formId = 0;
@@ -88,17 +94,28 @@ const makePayload = (form) => ({
 
   support_started_at: formatDateToSQL(form.startedAt) || null,
   support_ended_at: formatDateToSQL(form.endedAt) || null,
+  staff_name: staffName || null,
 });
 
 // 승인 요청
 const requestApproval = async (form) => {
   if (!form.supportTitle) {
-    alert('지원 제목은 필수입니다.');
+    toast.add({
+      severity: 'error',
+      summary: '알림',
+      detail: '지원 제목은 필수입니다.',
+      life: 3000,
+    });
     return;
   }
 
   if (!form.supportCategory || !selectedSupPlan.value) {
-    alert('사업을 선택해주세요.');
+    toast.add({
+      severity: 'error',
+      summary: '알림',
+      detail: '사업을 선택해주세요.',
+      life: 3000,
+    });
     return;
   }
 
@@ -106,11 +123,21 @@ const requestApproval = async (form) => {
     const payload = makePayload(form);
     console.log('🔥 전송 payload:', payload); // 디버깅
     await axios.post('/api/staff/support-result', payload);
-    alert('지원 결과가 저장되었습니다!');
+    toast.add({
+      severity: 'success',
+      summary: '알림',
+      detail: '지원 결과가 저장되었습니다!',
+      life: 3000,
+    });
     forms.value = [createForm()];
   } catch (err) {
     console.error('지원 결과 저장 실패:', err);
-    alert('저장 실패! 콘솔을 확인하세요.');
+    toast.add({
+      severity: 'error',
+      summary: '알림',
+      detail: '지원 결과 저장 실패',
+      life: 3000,
+    });
   }
 };
 
@@ -124,6 +151,7 @@ const addForm = () => forms.value.push(createForm());
 </script>
 
 <template>
+  <Toast />
   <div class="md:1 p-4">
     <h1 class="text-3xl font-extrabold mb-8 text-gray-800 border-b-4 border-indigo-300 pb-2">
       📝 지원 결과 작성

@@ -142,13 +142,15 @@ INSERT INTO support_result (
     support_spend,
     support_plan_no,
     support_started_at,
-    support_ended_at
-) VALUES (?, ?, ?, ?, ?, ?, ?)
+    support_ended_at,
+    staff_name
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 `;
 
 //지원결과보고서 조회
 const supportsearch = `
 SELECT
+  staff_name,
   support_result_no,
   support_title,
   support_spend,
